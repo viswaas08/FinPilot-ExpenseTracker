@@ -1,5 +1,5 @@
 export 'colors.dart';
-export 'glass.dart';
+export 'glass.dart' hide QuantumGlassMaterial;
 export 'lighting.dart';
 export 'motion.dart';
 export 'radius.dart';
