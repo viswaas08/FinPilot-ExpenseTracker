@@ -258,10 +258,10 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     );
     }
 
-    // Mobile Viewport Layout
-    final mobileNavBg = isDark ? AppColors.darkSurface : AppColors.lightSurface;
-    final mobileNavBorder = isDark ? AppColors.darkBorder : AppColors.lightBorder;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    // Mobile Viewport Layout - Frosted Titanium Floating Capsule
+    final mobileNavBg = isDark ? const Color(0xFF181C24) : Colors.white;
+    final mobileNavBorder = isDark ? const Color(0x14FFFFFF) : AppColors.lightBorder;
+    final textColor = isDark ? AppColors.primaryText : AppColors.lightTextPrimary;
 
     return OceanMeshBackground(
       child: Scaffold(
@@ -275,20 +275,19 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
           title: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
-                  ),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1),
                 ),
-                child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18),
+                child: const Icon(Icons.auto_awesome_rounded, color: AppColors.primary, size: 18),
               ),
               const SizedBox(width: 10),
               Text(
                 'FinPilot AI',
                 style: TextStyle(
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w800,
                   fontSize: 18,
                   color: textColor,
                   letterSpacing: -0.5,
@@ -300,12 +299,13 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
             IconButton(
               tooltip: 'All Features Hub',
               icon: Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.25), width: 1),
                 ),
-                child: const Icon(Icons.apps_rounded, color: AppColors.primary, size: 20),
+                child: const Icon(Icons.apps_rounded, color: AppColors.primary, size: 18),
               ),
               onPressed: () => _showFeatureHubSheet(context),
             ),
@@ -321,20 +321,24 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
             const SizedBox(width: 8),
           ],
         ),
-        body: KeyedSubtree(
-          key: ValueKey<int>(_currentIndex),
-          child: _screens[_currentIndex < _screens.length ? _currentIndex : 0],
+        body: Padding(
+          padding: const EdgeInsets.only(bottom: 84.0),
+          child: KeyedSubtree(
+            key: ValueKey<int>(_currentIndex),
+            child: _screens[_currentIndex < _screens.length ? _currentIndex : 0],
+          ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 70.0, right: 6.0),
+          padding: const EdgeInsets.only(bottom: 88.0, right: 14.0),
           child: Container(
+            height: 52,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(26),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary.withValues(alpha: 0.3),
-                  blurRadius: 12,
+                  blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -344,76 +348,75 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
               onPressed: () => context.push('/add-expense'),
               elevation: 0,
               backgroundColor: AppColors.primary,
-              icon: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+              icon: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
               label: const Text(
                 'Add Entry',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
-                  letterSpacing: 0.2,
-                  fontSize: 14,
+                  letterSpacing: 0.1,
+                  fontSize: 13,
                 ),
               ),
             ),
           ),
         ),
         bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 14, right: 14, bottom: 14),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-              decoration: BoxDecoration(
-                color: mobileNavBg,
-                borderRadius: BorderRadius.circular(20.0),
-                border: Border.all(color: mobileNavBorder, width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _NavItem(
-                    icon: Icons.dashboard_outlined,
-                    selectedIcon: Icons.dashboard_rounded,
-                    label: 'Dashboard',
-                    isSelected: _currentIndex == 0,
-                    onTap: () => setState(() => _currentIndex = 0),
-                  ),
-                  _NavItem(
-                    icon: Icons.receipt_long_outlined,
-                    selectedIcon: Icons.receipt_long_rounded,
-                    label: 'Expenses',
-                    isSelected: _currentIndex == 6,
-                    onTap: () => setState(() => _currentIndex = 6),
-                  ),
-                  _NavItem(
-                    icon: Icons.auto_awesome_outlined,
-                    selectedIcon: Icons.auto_awesome_rounded,
-                    label: 'AI Insights',
-                    isSelected: _currentIndex == 4,
-                    onTap: () => setState(() => _currentIndex = 4),
-                  ),
-                  _NavItem(
-                    icon: Icons.pie_chart_outline_rounded,
-                    selectedIcon: Icons.pie_chart_rounded,
-                    label: 'Analytics',
-                    isSelected: _currentIndex == 9,
-                    onTap: () => setState(() => _currentIndex = 9),
-                  ),
-                  _NavItem(
-                    icon: Icons.person_outline_rounded,
-                    selectedIcon: Icons.person_rounded,
-                    label: 'Profile',
-                    isSelected: _currentIndex == 12,
-                    onTap: () => setState(() => _currentIndex = 12),
-                  ),
-                ],
-              ),
+          child: Container(
+            height: 68,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: mobileNavBg.withValues(alpha: 0.90),
+              borderRadius: BorderRadius.circular(34),
+              border: Border.all(color: mobileNavBorder, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavItem(
+                  icon: Icons.dashboard_outlined,
+                  selectedIcon: Icons.dashboard_rounded,
+                  label: 'Dashboard',
+                  isSelected: _currentIndex == 0,
+                  onTap: () => setState(() => _currentIndex = 0),
+                ),
+                _NavItem(
+                  icon: Icons.receipt_long_outlined,
+                  selectedIcon: Icons.receipt_long_rounded,
+                  label: 'Expenses',
+                  isSelected: _currentIndex == 6,
+                  onTap: () => setState(() => _currentIndex = 6),
+                ),
+                _NavItem(
+                  icon: Icons.auto_awesome_outlined,
+                  selectedIcon: Icons.auto_awesome_rounded,
+                  label: 'AI Insights',
+                  isSelected: _currentIndex == 4,
+                  onTap: () => setState(() => _currentIndex = 4),
+                ),
+                _NavItem(
+                  icon: Icons.pie_chart_outline_rounded,
+                  selectedIcon: Icons.pie_chart_rounded,
+                  label: 'Analytics',
+                  isSelected: _currentIndex == 9,
+                  onTap: () => setState(() => _currentIndex = 9),
+                ),
+                _NavItem(
+                  icon: Icons.person_outline_rounded,
+                  selectedIcon: Icons.person_rounded,
+                  label: 'Profile',
+                  isSelected: _currentIndex == 12,
+                  onTap: () => setState(() => _currentIndex = 12),
+                ),
+              ],
             ),
           ),
         ),
@@ -423,22 +426,22 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
 
   void _showFeatureHubSheet(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF0F172A) : Colors.white;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final bgColor = isDark ? const Color(0xFF181C24) : Colors.white;
+    final textColor = isDark ? AppColors.primaryText : AppColors.lightTextPrimary;
 
     final featureItems = [
-      {'icon': Icons.grid_view_rounded, 'label': 'Dashboard', 'index': 0, 'color': const Color(0xFF3B82F6)},
-      {'icon': Icons.trending_up_rounded, 'label': 'Income Stream', 'index': 5, 'color': const Color(0xFF10B981)},
+      {'icon': Icons.grid_view_rounded, 'label': 'Dashboard', 'index': 0, 'color': AppColors.primary},
+      {'icon': Icons.trending_up_rounded, 'label': 'Income Stream', 'index': 5, 'color': AppColors.success},
       {'icon': Icons.savings_rounded, 'label': 'Savings Goals', 'index': 3, 'color': const Color(0xFFA855F7)},
-      {'icon': Icons.account_balance_wallet_rounded, 'label': 'Budgets', 'index': 8, 'color': const Color(0xFFF59E0B)},
-      {'icon': Icons.show_chart_rounded, 'label': 'Analytics', 'index': 9, 'color': const Color(0xFF06B6D4)},
+      {'icon': Icons.account_balance_wallet_rounded, 'label': 'Budgets', 'index': 8, 'color': AppColors.warning},
+      {'icon': Icons.show_chart_rounded, 'label': 'Analytics', 'index': 9, 'color': AppColors.secondary},
       {'icon': Icons.history_toggle_off_rounded, 'label': 'Recurring Bills', 'index': 2, 'color': const Color(0xFFEC4899)},
-      {'icon': Icons.smart_toy_rounded, 'label': 'AI Advisor', 'index': 4, 'color': const Color(0xFF8B5CF6)},
+      {'icon': Icons.smart_toy_rounded, 'label': 'AI Advisor', 'index': 4, 'color': AppColors.primary},
       {'icon': Icons.category_rounded, 'label': 'Categories', 'index': 7, 'color': const Color(0xFF14B8A6)},
-      {'icon': Icons.receipt_long_rounded, 'label': 'Expenses', 'index': 6, 'color': const Color(0xFFEF4444)},
-      {'icon': Icons.settings_rounded, 'label': 'Settings', 'index': 10, 'color': const Color(0xFF64748B)},
-      {'icon': Icons.notifications_rounded, 'label': 'Notifications', 'index': 11, 'color': const Color(0xFFF97316)},
-      {'icon': Icons.diamond_rounded, 'label': 'Pricing Plans', 'index': 1, 'color': const Color(0xFF3B82F6)},
+      {'icon': Icons.receipt_long_rounded, 'label': 'Expenses', 'index': 6, 'color': AppColors.error},
+      {'icon': Icons.settings_rounded, 'label': 'Settings', 'index': 10, 'color': AppColors.secondaryText},
+      {'icon': Icons.notifications_rounded, 'label': 'Notifications', 'index': 11, 'color': AppColors.warning},
+      {'icon': Icons.diamond_rounded, 'label': 'Pricing Plans', 'index': 1, 'color': AppColors.primary},
     ];
 
     showModalBottomSheet(
@@ -461,7 +464,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                     'All Feature Apps',
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       color: textColor,
                     ),
                   ),
@@ -478,8 +481,8 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                   itemCount: featureItems.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
-                    mainAxisSpacing: 14,
-                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
                     childAspectRatio: 1.1,
                   ),
                   itemBuilder: (ctx, idx) {
@@ -494,21 +497,21 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: tileColor.withValues(alpha: 0.12),
+                          color: isDark ? const Color(0xFF20252E) : tileColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: tileColor.withValues(alpha: 0.3)),
+                          border: Border.all(color: tileColor.withValues(alpha: 0.25), width: 1),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(item['icon'] as IconData, color: tileColor, size: 24),
+                            Icon(item['icon'] as IconData, color: tileColor, size: 22),
                             const SizedBox(height: 6),
                             Text(
                               item['label'] as String,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: textColor,
                               ),
                               maxLines: 1,

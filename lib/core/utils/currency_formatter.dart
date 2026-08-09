@@ -5,18 +5,18 @@ abstract class CurrencyFormatter {
 
   static String format(double amount, {String currencySymbol = defaultSymbol}) {
     final formatter = NumberFormat.currency(
-      symbol: currencySymbol,
+      symbol: '$currencySymbol\u00A0',
       decimalDigits: 2,
     );
-    return formatter.format(amount);
+    return formatter.format(amount).replaceAll(' ', '\u00A0');
   }
 
   static String formatCompact(double amount, {String currencySymbol = defaultSymbol}) {
     final formatter = NumberFormat.compactCurrency(
-      symbol: currencySymbol,
+      symbol: '$currencySymbol\u00A0',
       decimalDigits: 1,
     );
-    return formatter.format(amount);
+    return formatter.format(amount).replaceAll(' ', '\u00A0');
   }
 
   static double? parse(String formattedString) {

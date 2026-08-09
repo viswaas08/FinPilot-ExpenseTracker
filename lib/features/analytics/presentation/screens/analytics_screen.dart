@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
+import 'package:expense_tracker/core/theme/app_typography.dart';
+import 'package:expense_tracker/core/utils/currency_formatter.dart';
+import 'package:expense_tracker/core/presentation/widgets/titanium_metric_card.dart';
+import 'package:expense_tracker/core/presentation/widgets/titanium_transaction_tile.dart';
 import 'package:expense_tracker/features/analytics/presentation/controllers/analytics_controller.dart';
-
 import 'package:expense_tracker/features/analytics/presentation/widgets/analytics_time_filter_segmented_control.dart';
 import 'package:expense_tracker/features/analytics/presentation/widgets/glass_cash_flow_bar_chart.dart';
 import 'package:expense_tracker/features/analytics/presentation/widgets/glass_donut_chart.dart';
-import 'package:expense_tracker/features/analytics/presentation/widgets/highest_spending_category_card.dart';
-import 'package:expense_tracker/features/analytics/presentation/widgets/liquid_gauge_card.dart';
-import 'package:expense_tracker/features/analytics/presentation/widgets/top_transaction_tile.dart';
 import 'package:expense_tracker/features/analytics/presentation/widgets/yearly_contribution_heatmap.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/weekly_spending_chart.dart';
 
@@ -20,25 +20,7 @@ class AnalyticsScreen extends ConsumerStatefulWidget {
   ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
 }
 
-class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _staggerController;
-
-  @override
-  void initState() {
-    super.initState();
-    _staggerController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..forward();
-  }
-
-  @override
-  void dispose() {
-    _staggerController.dispose();
-    super.dispose();
-  }
-
+class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(analyticsControllerProvider);
@@ -49,8 +31,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
         : null;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+    final textColor = isDark ? AppColors.primaryText : AppColors.lightTextPrimary;
+    final subTextColor = isDark ? AppColors.secondaryText : AppColors.lightTextSecondary;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -61,10 +43,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
         scrolledUnderElevation: 0,
         title: Text(
           'Financial Analytics',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+          style: AppTypography.screenTitle.copyWith(
             color: textColor,
+            fontSize: 22,
           ),
         ),
       ),
@@ -85,17 +66,39 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                 ),
                 const SizedBox(height: 20),
 
+                // 2. Key Metrics Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: TitaniumMetricCard(
+                        label: 'Total Expenses',
+                        amount: state.totalExpenses,
+                        icon: Icons.account_balance_wallet_rounded,
+                        accentColor: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: TitaniumMetricCard(
+                        label: 'Avg. Daily Spend',
+                        amount: state.averageDailySpending,
+                        subtitle: topCategory != null ? 'Top: ${topCategory.categoryName}' : null,
+                        icon: Icons.show_chart_rounded,
+                        accentColor: AppColors.secondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
                 // Desktop 2-Column Grid vs Mobile Single Column
                 if (isDesktop)
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Left Column
                       Expanded(
                         child: Column(
                           children: [
-                            HighestSpendingCategoryCard(topSpending: topCategory),
-                            const SizedBox(height: 20),
                             GlassDonutChart(
                               breakdown: state.categoryBreakdown,
                               totalExpenses: state.totalExpenses,
@@ -106,16 +109,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                         ),
                       ),
                       const SizedBox(width: 20),
-
-                      // Right Column
                       Expanded(
                         child: Column(
                           children: [
-                            LiquidGaugeCard(
-                              averageAmount: state.averageDailySpending,
-                              fillRatio: state.gaugeFillRatio,
-                            ),
-                            const SizedBox(height: 20),
                             const GlassCashFlowBarChart(),
                             const SizedBox(height: 20),
                             const YearlyContributionHeatmap(),
@@ -127,44 +123,27 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                 else
                   Column(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: HighestSpendingCategoryCard(topSpending: topCategory),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: LiquidGaugeCard(
-                              averageAmount: state.averageDailySpending,
-                              fillRatio: state.gaugeFillRatio,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 22),
                       GlassDonutChart(
                         breakdown: state.categoryBreakdown,
                         totalExpenses: state.totalExpenses,
                       ),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 20),
                       const WeeklySpendingChart(),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 20),
                       const GlassCashFlowBarChart(),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 20),
                       const YearlyContributionHeatmap(),
                     ],
                   ),
 
                 const SizedBox(height: 24),
 
-                // Top Transactions List
+                // 3. Top Transactions
                 Text(
-                  'Top Transactions (Highest Spent)',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                  'Top Transactions',
+                  style: AppTypography.sectionTitle.copyWith(
                     color: textColor,
-                    letterSpacing: -0.4,
+                    fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -174,22 +153,26 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen>
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Center(
                       child: Text(
-                        'No transaction records found for this timeframe.',
-                        style: TextStyle(color: subTextColor),
+                        'No transactions recorded for this timeframe.',
+                        style: AppTypography.caption.copyWith(color: subTextColor),
                       ),
                     ),
                   )
                 else
-                  ListView.separated(
+                  ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: state.topTransactions.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = state.topTransactions[index];
-                      return TopTransactionTile(
-                        expense: item,
-                        rank: index + 1,
+                      return TitaniumTransactionTile(
+                        title: item.title,
+                        category: item.categoryId,
+                        dateText: '${item.date.day}/${item.date.month}/${item.date.year}',
+                        amount: item.amount,
+                        isIncome: false,
+                        icon: Icons.receipt_rounded,
+                        iconColor: AppColors.primary,
                         onTap: () => context.push('/expense-detail/${item.id}'),
                       );
                     },

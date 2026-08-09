@@ -4,106 +4,79 @@ import 'package:expense_tracker/core/theme/app_colors.dart';
 class OceanMeshBackground extends StatelessWidget {
   final Widget child;
 
-  const OceanMeshBackground({super.key, required this.child});
+  const OceanMeshBackground({
+    super.key,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    final bgGradient = isDark
-        ? const LinearGradient(
-            colors: [
-              Color(0xFF0B0F19), // Midnight slate
-              Color(0xFF0F172A), // Deep navy
-              Color(0xFF111827), // Charcoal slate
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
-        : const LinearGradient(
-            colors: [
-              Color(0xFF0F172A), // Deep Slate Navy
-              Color(0xFF1E1B4B), // Rich Deep Indigo
-              Color(0xFF0F172A),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          );
+    if (!isDark) {
+      return Container(
+        color: AppColors.lightBackground,
+        child: child,
+      );
+    }
 
     return Stack(
       children: [
-        // Base Rich Gradient Canvas
-        Container(
-          decoration: BoxDecoration(
-            gradient: bgGradient,
+        // Matte Titanium Base with Vertical Gradient
+        Positioned.fill(
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF141820),
+                  Color(0xFF0F1115),
+                  Color(0xFF0F1115),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
           ),
         ),
 
-        // Top-Right Glowing Indigo Orb — uses DecoratedBox with radial gradient
-        // instead of BackdropFilter to avoid Flutter web rendering artifacts.
+        // Extremely Soft 3-5% Opacity Titanium Aurora Accents
         Positioned(
-          top: -80,
+          top: -120,
           right: -80,
+          width: 320,
+          height: 320,
           child: Container(
-            width: 320,
-            height: 320,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  AppColors.primary.withValues(alpha: isDark ? 0.22 : 0.30),
-                  AppColors.primary.withValues(alpha: isDark ? 0.08 : 0.12),
-                  Colors.transparent,
+                  const Color(0xFF7C5CFF).withValues(alpha: 0.05),
+                  const Color(0xFF7C5CFF).withValues(alpha: 0.0),
                 ],
-                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),
         ),
-
-        // Bottom-Left Glowing Cyan/Emerald Orb
         Positioned(
-          bottom: -100,
+          bottom: 100,
           left: -100,
+          width: 350,
+          height: 350,
           child: Container(
-            width: 360,
-            height: 360,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFF06B6D4).withValues(alpha: isDark ? 0.18 : 0.25),
-                  const Color(0xFF06B6D4).withValues(alpha: isDark ? 0.06 : 0.10),
-                  Colors.transparent,
+                  const Color(0xFF22C55E).withValues(alpha: 0.04),
+                  const Color(0xFF22C55E).withValues(alpha: 0.0),
                 ],
-                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),
         ),
 
-        // Center Ambient Purple Orb
-        Positioned(
-          top: MediaQuery.of(context).size.height * 0.4,
-          left: MediaQuery.of(context).size.width * 0.3,
-          child: Container(
-            width: 280,
-            height: 280,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  const Color(0xFF8B5CF6).withValues(alpha: isDark ? 0.16 : 0.22),
-                  const Color(0xFF8B5CF6).withValues(alpha: isDark ? 0.05 : 0.08),
-                  Colors.transparent,
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-            ),
-          ),
-        ),
-
-        // Main Content Child
+        // Foreground Content
         child,
       ],
     );

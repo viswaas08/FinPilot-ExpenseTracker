@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
 import 'package:expense_tracker/core/utils/currency_formatter.dart';
+import 'package:expense_tracker/core/presentation/widgets/titanium_metric_card.dart';
+import 'package:expense_tracker/core/presentation/widgets/titanium_budget_progress.dart';
+import 'package:expense_tracker/core/presentation/widgets/titanium_transaction_tile.dart';
 import 'package:expense_tracker/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:expense_tracker/features/budget/presentation/controllers/budget_controller.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/weekly_spending_chart.dart';
@@ -36,6 +39,7 @@ class _PersonalFinanceDashboardScreenState
     final netSavings = (expenseState.totalIncome - expenseState.totalExpense).clamp(0.0, double.infinity);
     final totalLimit = budgetState.activeBudget?.totalLimit ?? 2500.0;
     final remainingBudget = (totalLimit - expenseState.totalExpense).clamp(0.0, double.infinity);
+    final savingsRate = expenseState.totalIncome > 0 ? ((netSavings / expenseState.totalIncome) * 100).clamp(0.0, 100.0) : 0.0;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -103,120 +107,65 @@ class _PersonalFinanceDashboardScreenState
                       ],
                     ),
                     const SizedBox(height: 24),
-
-                    // 2. 4 Metric Cards Row
-                    if (isDesktop)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _FinPilotMetricCard(
-                              title: 'MONTHLY EXPENSE',
-                              amount: CurrencyFormatter.format(expenseState.totalExpense),
-                              badgeText: '↘ 4.2% vs last month',
-                              badgeColor: const Color(0xFFEF4444),
-                              icon: Icons.south_west_rounded,
-                              iconBg: const Color(0xFFEF4444).withValues(alpha: 0.15),
-                              iconColor: const Color(0xFFEF4444),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: _FinPilotMetricCard(
-                              title: 'INCOME',
-                              amount: CurrencyFormatter.format(expenseState.totalIncome),
-                              badgeText: '↗ 8.5% vs last month',
-                              badgeColor: const Color(0xFF10B981),
-                              icon: Icons.north_east_rounded,
-                              iconBg: const Color(0xFF10B981).withValues(alpha: 0.15),
-                              iconColor: const Color(0xFF10B981),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: _FinPilotMetricCard(
-                              title: 'NET SAVINGS',
-                              amount: CurrencyFormatter.format(netSavings),
-                              badgeText: '↗ 12% 0% savings rate',
-                              badgeColor: const Color(0xFF3B82F6),
-                              icon: Icons.account_balance_wallet_outlined,
-                              iconBg: const Color(0xFF3B82F6).withValues(alpha: 0.15),
-                              iconColor: const Color(0xFF3B82F6),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: _FinPilotMetricCard(
-                              title: 'BUDGET REMAINING',
-                              amount: CurrencyFormatter.format(remainingBudget),
-                              badgeText: '00 - 0%  Limit: ${CurrencyFormatter.format(totalLimit)}',
-                              badgeColor: const Color(0xFFA855F7),
-                              icon: Icons.savings_outlined,
-                              iconBg: const Color(0xFFA855F7).withValues(alpha: 0.15),
-                              iconColor: const Color(0xFFA855F7),
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _FinPilotMetricCard(
-                                  title: 'MONTHLY EXPENSE',
-                                  amount: CurrencyFormatter.format(expenseState.totalExpense),
-                                  badgeText: '↘ 4.2% vs last month',
-                                  badgeColor: const Color(0xFFEF4444),
-                                  icon: Icons.south_west_rounded,
-                                  iconBg: const Color(0xFFEF4444).withValues(alpha: 0.15),
-                                  iconColor: const Color(0xFFEF4444),
-                                ),
+                    // 2. Financial Summary Grid
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TitaniumMetricCard(
+                                label: 'Monthly Spending',
+                                amount: expenseState.totalExpense,
+                                trendText: '↘ 4.2% vs last month',
+                                isPositiveTrend: false,
+                                icon: Icons.trending_down_rounded,
+                                accentColor: AppColors.error,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _FinPilotMetricCard(
-                                  title: 'INCOME',
-                                  amount: CurrencyFormatter.format(expenseState.totalIncome),
-                                  badgeText: '↗ 8.5% vs last month',
-                                  badgeColor: const Color(0xFF10B981),
-                                  icon: Icons.north_east_rounded,
-                                  iconBg: const Color(0xFF10B981).withValues(alpha: 0.15),
-                                  iconColor: const Color(0xFF10B981),
-                                ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: TitaniumMetricCard(
+                                label: 'Income',
+                                amount: expenseState.totalIncome,
+                                trendText: '↗ 8.5% vs last month',
+                                isPositiveTrend: true,
+                                icon: Icons.trending_up_rounded,
+                                accentColor: AppColors.success,
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _FinPilotMetricCard(
-                                  title: 'NET SAVINGS',
-                                  amount: CurrencyFormatter.format(netSavings),
-                                  badgeText: '↗ 12% 0% savings rate',
-                                  badgeColor: const Color(0xFF3B82F6),
-                                  icon: Icons.account_balance_wallet_outlined,
-                                  iconBg: const Color(0xFF3B82F6).withValues(alpha: 0.15),
-                                  iconColor: const Color(0xFF3B82F6),
-                                ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TitaniumMetricCard(
+                                label: 'Net Savings',
+                                amount: netSavings,
+                                subtitle: 'Savings rate ${savingsRate.toStringAsFixed(0)}%',
+                                icon: Icons.savings_outlined,
+                                accentColor: const Color(0xFFA855F7),
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _FinPilotMetricCard(
-                                  title: 'BUDGET REMAINING',
-                                  amount: CurrencyFormatter.format(remainingBudget),
-                                  badgeText: '00 - 0%  Limit: ${CurrencyFormatter.format(totalLimit)}',
-                                  badgeColor: const Color(0xFFA855F7),
-                                  icon: Icons.savings_outlined,
-                                  iconBg: const Color(0xFFA855F7).withValues(alpha: 0.15),
-                                  iconColor: const Color(0xFFA855F7),
-                                ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: TitaniumMetricCard(
+                                label: 'Budget Usage',
+                                amount: expenseState.totalExpense,
+                                subtitle: 'Limit: ${CurrencyFormatter.format(totalLimit)}',
+                                icon: Icons.account_balance_wallet_outlined,
+                                accentColor: AppColors.warning,
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        TitaniumBudgetProgressCard(
+                          spent: expenseState.totalExpense,
+                          budgetLimit: totalLimit > 0 ? totalLimit : 2500,
+                        ),
+                      ],
+                    ),
                     if (!isDesktop) ...[
                       const SizedBox(height: 16),
                       Container(
