@@ -217,6 +217,36 @@ class _PersonalFinanceDashboardScreenState
                           ),
                         ],
                       ),
+                    if (!isDesktop) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.6) : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Feature Launchpad',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildLaunchTile(context, Icons.trending_up_rounded, 'Income', const Color(0xFF10B981), '/income'),
+                                _buildLaunchTile(context, Icons.savings_rounded, 'Savings', const Color(0xFFA855F7), '/savings-goals'),
+                                _buildLaunchTile(context, Icons.account_balance_wallet_rounded, 'Budgets', const Color(0xFFF59E0B), '/budget'),
+                                _buildLaunchTile(context, Icons.history_toggle_off_rounded, 'Recurring', const Color(0xFFEC4899), '/recurring'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 24),
 
                     // 3. Main Split Content Area
@@ -404,6 +434,33 @@ class _PersonalFinanceDashboardScreenState
               );
             },
           );
+  }
+
+  Widget _buildLaunchTile(BuildContext context, IconData icon, String label, Color color, String route) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+
+    return GestureDetector(
+      onTap: () => context.push(route),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: textColor),
+          ),
+        ],
+      ),
+    );
   }
 }
 
