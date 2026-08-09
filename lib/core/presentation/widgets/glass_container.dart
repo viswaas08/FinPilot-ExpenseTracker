@@ -42,45 +42,30 @@ class _GlassContainerState extends State<GlassContainer> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final defaultGradient = LinearGradient(
-      colors: isDark
-          ? [
-              const Color(0xFF1E293B).withValues(alpha: widget.opacity),
-              const Color(0xFF0F172A).withValues(alpha: widget.opacity * 0.7),
-            ]
-          : [
-              Colors.white.withValues(alpha: widget.opacity),
-              Colors.white.withValues(alpha: widget.opacity * 0.45),
-            ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
+    final solidSurfaceColor = isDark
+        ? const Color(0xFF111C30)
+        : Colors.white;
 
     final borderStrokeColor = widget.borderColor ??
         (isDark
-            ? Colors.white.withValues(alpha: 0.15)
-            : Colors.white.withValues(alpha: 0.6));
+            ? const Color(0xFF263346)
+            : const Color(0xFFE2E8F0));
 
     final defaultShadows = widget.shadows ??
         [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
-            blurRadius: 24,
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
+            blurRadius: 10,
             spreadRadius: 0,
-            offset: const Offset(0, 10),
-          ),
-          BoxShadow(
-            color: (isDark ? Colors.white : Colors.black).withValues(alpha: isDark ? 0.03 : 0.02),
-            blurRadius: 4,
-            spreadRadius: 0,
-            offset: const Offset(0, 2),
+            offset: const Offset(0, 4),
           ),
         ];
 
     Widget innerContainer = Container(
       padding: widget.padding,
       decoration: BoxDecoration(
-        gradient: widget.gradient ?? defaultGradient,
+        color: widget.gradient == null ? solidSurfaceColor : null,
+        gradient: widget.gradient,
         borderRadius: BorderRadius.circular(widget.borderRadius),
         border: Border.all(
           color: borderStrokeColor,
@@ -88,22 +73,20 @@ class _GlassContainerState extends State<GlassContainer> {
         ),
         boxShadow: defaultShadows,
       ),
-      child: widget.child,
+      child: Material(
+        color: Colors.transparent,
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(decoration: TextDecoration.none),
+          child: widget.child,
+        ),
+      ),
     );
 
     Widget content = Container(
       margin: widget.margin,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: kIsWeb
-            ? innerContainer
-            : BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: widget.blur,
-                  sigmaY: widget.blur,
-                ),
-                child: innerContainer,
-              ),
+        child: innerContainer,
       ),
     );
 

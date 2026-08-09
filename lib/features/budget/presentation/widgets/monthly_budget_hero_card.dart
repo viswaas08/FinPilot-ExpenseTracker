@@ -27,10 +27,16 @@ class MonthlyBudgetHeroCard extends StatelessWidget {
     final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    return LiquidGlassCard(
-      borderRadius: 16.0,
+    final cardBg = isDark ? AppColors.card : Colors.white;
+    final borderColor = isDark ? AppColors.border : AppColors.lightBorder;
+
+    return Container(
       padding: const EdgeInsets.all(22),
-      borderColor: AppColors.primary.withValues(alpha: isDark ? 0.4 : 0.5),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

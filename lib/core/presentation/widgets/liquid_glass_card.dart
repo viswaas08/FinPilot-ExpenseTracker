@@ -75,7 +75,13 @@ class _LiquidGlassCardState extends State<LiquidGlassCard> {
           ),
           boxShadow: defaultShadows,
         ),
-        child: widget.child,
+        child: Material(
+          color: Colors.transparent,
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(decoration: TextDecoration.none),
+            child: widget.child,
+          ),
+        ),
       ),
     );
 

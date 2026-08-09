@@ -6,12 +6,14 @@ import 'package:expense_tracker/features/categories/domain/entities/transaction_
 
 class CategoryGlassCard extends StatefulWidget {
   final TransactionCategory category;
+  final double actualSpent;
   final VoidCallback onTap;
   final VoidCallback? onDelete;
 
   const CategoryGlassCard({
     super.key,
     required this.category,
+    this.actualSpent = 0.0,
     required this.onTap,
     this.onDelete,
   });
@@ -30,6 +32,8 @@ class _CategoryGlassCardState extends State<CategoryGlassCard> {
     final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
+    final progressVal = cat.monthlyBudget > 0 ? (widget.actualSpent / cat.monthlyBudget).clamp(0.0, 1.0) : 0.0;
+
     return GestureDetector(
       onLongPress: () {
         if (cat.isCustom) {
@@ -43,36 +47,28 @@ class _CategoryGlassCardState extends State<CategoryGlassCard> {
           border: Border.all(
             color: _isDeleteState
                 ? Colors.redAccent
-                : (isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.lightBorder),
-            width: _isDeleteState ? 2.0 : 1.2,
+                : (isDark ? const Color(0xFF263346) : AppColors.lightBorder),
+            width: _isDeleteState ? 2.0 : 1.0,
           ),
-          boxShadow: _isDeleteState
-              ? [
-                  BoxShadow(
-                    color: Colors.redAccent.withValues(alpha: 0.5),
-                    blurRadius: 18,
-                    spreadRadius: 2,
-                  ),
-                ]
-              : null,
         ),
         child: Stack(
           children: [
             LiquidGlassCard(
               borderRadius: 16.0,
-              padding: const EdgeInsets.all(16),
-              borderColor: _isDeleteState ? Colors.redAccent : cat.color.withValues(alpha: isDark ? 0.4 : 0.5),
+              padding: const EdgeInsets.all(14),
+              borderColor: _isDeleteState ? Colors.redAccent : cat.color.withValues(alpha: 0.3),
               onTap: _isDeleteState ? null : widget.onTap,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Icon with Aura
+                  // Icon Badge with aura ring
                   Container(
-                    width: 50,
-                    height: 50,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
                       color: cat.color.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
+                      border: Border.all(color: cat.color.withValues(alpha: 0.3), width: 1.5),
                     ),
                     child: Icon(
                       cat.icon,
@@ -80,15 +76,16 @@ class _CategoryGlassCardState extends State<CategoryGlassCard> {
                       size: 24,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
 
-                  // Category Name Text
+                  // Category Name
                   Text(
                     cat.name,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       color: textColor,
+                      decoration: TextDecoration.none,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -98,32 +95,44 @@ class _CategoryGlassCardState extends State<CategoryGlassCard> {
                   // Monthly Budget Bar / Indicator
                   if (cat.monthlyBudget > 0) ...[
                     Text(
-                      'Limit: ${CurrencyFormatter.formatCompact(cat.monthlyBudget)}/mo',
+                      '${CurrencyFormatter.formatCompact(widget.actualSpent)} / ${CurrencyFormatter.formatCompact(cat.monthlyBudget)}',
                       style: TextStyle(
                         fontSize: 11,
                         color: subTextColor,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.none,
                       ),
                     ),
                     const SizedBox(height: 6),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
-                        value: 0.45,
+                        value: progressVal,
                         minHeight: 4,
                         backgroundColor: cat.color.withValues(alpha: 0.15),
-                        valueColor: AlwaysStoppedAnimation<Color>(cat.color),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          progressVal > 0.9 ? AppColors.expense : cat.color,
+                        ),
                       ),
                     ),
-                  ] else
-                    Text(
-                      cat.isCustom ? 'Custom' : 'System Default',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: subTextColor,
-                        fontWeight: FontWeight.w500,
+                  ] else ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        cat.isCustom ? 'Custom Tag' : 'System Default',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: subTextColor,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.none,
+                        ),
                       ),
                     ),
+                  ],
                 ],
               ),
             ),
@@ -136,7 +145,7 @@ class _CategoryGlassCardState extends State<CategoryGlassCard> {
                 child: GestureDetector(
                   onTap: widget.onDelete,
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(
                       color: Colors.redAccent,
                       shape: BoxShape.circle,
@@ -144,7 +153,7 @@ class _CategoryGlassCardState extends State<CategoryGlassCard> {
                     child: const Icon(
                       Icons.delete_forever_rounded,
                       color: Colors.white,
-                      size: 20,
+                      size: 18,
                     ),
                   ),
                 ),

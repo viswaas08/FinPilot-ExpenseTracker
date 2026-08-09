@@ -3,8 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/core/presentation/widgets/glass_dialog.dart';
 import 'package:expense_tracker/core/presentation/widgets/primary_button.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
+import 'package:expense_tracker/features/categories/domain/entities/transaction_category.dart';
 import 'package:expense_tracker/features/categories/presentation/controllers/category_controller.dart';
+import 'package:expense_tracker/features/categories/presentation/widgets/category_detail_sheet.dart';
+import 'package:expense_tracker/features/categories/presentation/widgets/category_filter_toolbar.dart';
 import 'package:expense_tracker/features/categories/presentation/widgets/category_glass_card.dart';
+import 'package:expense_tracker/features/categories/presentation/widgets/category_hero_summary_card.dart';
+import 'package:expense_tracker/features/expenses/presentation/controllers/expense_controller.dart';
 import 'category_form_screen.dart';
 
 class CategoryManagementScreen extends ConsumerStatefulWidget {
@@ -35,7 +40,7 @@ class _CategoryManagementScreenState
     super.dispose();
   }
 
-  void _openAddCategorySheet([dynamic initialCategory]) {
+  void _openAddCategorySheet([TransactionCategory? initialCategory]) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -59,6 +64,21 @@ class _CategoryManagementScreenState
     );
   }
 
+  void _openCategoryDetailSheet(TransactionCategory category) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return CategoryDetailSheet(
+          category: category,
+          onEdit: () => _openAddCategorySheet(category),
+          onDelete: category.isCustom ? () => _confirmDelete(category.id, category.name) : null,
+        );
+      },
+    );
+  }
+
   void _confirmDelete(String id, String name) {
     final controller = ref.read(categoryControllerProvider.notifier);
     final theme = Theme.of(context);
@@ -76,6 +96,7 @@ class _CategoryManagementScreenState
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               fontSize: 14,
               height: 1.4,
+              decoration: TextDecoration.none,
             ),
           ),
           const SizedBox(height: 24),
@@ -88,6 +109,7 @@ class _CategoryManagementScreenState
                     'Cancel',
                     style: TextStyle(
                       color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),
@@ -97,9 +119,9 @@ class _CategoryManagementScreenState
                 child: PrimaryButton(
                   label: 'Delete',
                   backgroundColor: AppColors.expense,
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.of(context).pop();
-                    final deleted = controller.deleteCategory(id);
+                    final deleted = await controller.deleteCategory(id);
                     if (!deleted && mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -120,62 +142,169 @@ class _CategoryManagementScreenState
   @override
   Widget build(BuildContext context) {
     final categoryState = ref.watch(categoryControllerProvider);
-    final categories = categoryState.categories;
+    final controller = ref.read(categoryControllerProvider.notifier);
+    final expenseState = ref.watch(expenseControllerProvider);
+
+    final categories = categoryState.filteredCategories;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Category Management',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: textColor,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              PrimaryButton(
-                label: 'Add Category',
-                icon: Icons.add_rounded,
-                onPressed: () => _openAddCategorySheet(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'All Categories',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                    ),
-                  ),
-                  Text(
-                    '${categories.length} Items',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: subTextColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
+    final canPop = Navigator.of(context).canPop();
 
-              // Responsive Category Cards Grid with Staggered Entry Animation
+    // Compute actual spending per category
+    final Map<String, double> categorySpentMap = {};
+    for (final exp in expenseState.expenses.where((e) => !e.isIncome)) {
+      final nameKey = exp.category.name.toLowerCase();
+      categorySpentMap[nameKey] = (categorySpentMap[nameKey] ?? 0.0) + exp.amount;
+    }
+
+    final totalActualSpent = categorySpentMap.values.fold(0.0, (sum, val) => sum + val);
+
+    String? topSpentCatName;
+    if (categorySpentMap.isNotEmpty) {
+      final topEntry = categorySpentMap.entries.reduce((a, b) => a.value > b.value ? a : b);
+      if (topEntry.value > 0) {
+        final match = categoryState.categories.firstWhere(
+          (c) => c.name.toLowerCase() == topEntry.key,
+          orElse: () => categoryState.categories.first,
+        );
+        topSpentCatName = match.name;
+      }
+    }
+
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: AppBar(
+        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        leading: canPop
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                color: textColor,
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.income.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.category_outlined, size: 20, color: AppColors.income),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Category Studio',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: textColor,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: PrimaryButton(
+              label: 'Add Category',
+              icon: Icons.add_rounded,
+              onPressed: () => _openAddCategorySheet(),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Top Category Summary Hero Card
+            CategoryHeroSummaryCard(
+              totalCategories: categoryState.categories.length,
+              customCategories: categoryState.customCategoriesCount,
+              totalBudgetAllocated: categoryState.totalBudgetAllocated,
+              totalActualSpent: totalActualSpent,
+              topSpentCategory: topSpentCatName,
+            ),
+            const SizedBox(height: 20),
+
+            // 2. Search, Filter Chips & Sort Options Toolbar
+            CategoryFilterToolbar(
+              searchQuery: categoryState.searchQuery,
+              filterType: categoryState.filterType,
+              sortOption: categoryState.sortOption,
+              onSearchChanged: (q) => controller.setSearchQuery(q),
+              onFilterTypeChanged: (type) => controller.setFilterType(type),
+              onSortOptionChanged: (sort) => controller.setSortOption(sort),
+            ),
+            const SizedBox(height: 20),
+
+            // 3. Grid Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Categories',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: textColor,
+                    letterSpacing: -0.3,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurfaceVariant,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${categories.length} Shown',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: subTextColor,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // 4. Responsive Category Grid / Empty State
+            if (categories.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.category_outlined, size: 44, color: subTextColor),
+                      const SizedBox(height: 12),
+                      Text(
+                        'No matching categories found',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textColor, decoration: TextDecoration.none),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Try clearing search or changing category filters.',
+                        style: TextStyle(fontSize: 12, color: subTextColor, decoration: TextDecoration.none),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -188,6 +317,7 @@ class _CategoryManagementScreenState
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final cat = categories[index];
+                  final actualSpent = categorySpentMap[cat.name.toLowerCase()] ?? 0.0;
 
                   final itemAnim = CurvedAnimation(
                     parent: _gridCascadeController,
@@ -204,16 +334,19 @@ class _CategoryManagementScreenState
                       opacity: itemAnim,
                       child: CategoryGlassCard(
                         category: cat,
-                        onTap: () => _openAddCategorySheet(cat),
+                        actualSpent: actualSpent,
+                        onTap: () => _openCategoryDetailSheet(cat),
                         onDelete: cat.isCustom ? () => _confirmDelete(cat.id, cat.name) : null,
                       ),
                     ),
                   );
                 },
               ),
-              const SizedBox(height: 100),
-            ],
-          ),
-        );
+            const SizedBox(height: 60),
+          ],
+        ),
+      ),
+    );
   }
 }
+

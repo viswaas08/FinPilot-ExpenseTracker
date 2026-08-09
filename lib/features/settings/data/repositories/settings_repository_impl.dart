@@ -16,6 +16,10 @@ class SettingsRepositoryImpl {
     if (data == null) return const UserPreferencesEntity();
     return UserPreferencesEntity.fromJson(Map<String, dynamic>.from(data as Map));
   }
+
+  Future<void> resetAllData() async {
+    await _hiveService.resetAllData();
+  }
 }
 
 final settingsRepositoryProvider = Provider<SettingsRepositoryImpl>((ref) {

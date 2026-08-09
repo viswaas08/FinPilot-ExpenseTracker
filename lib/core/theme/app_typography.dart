@@ -8,6 +8,7 @@ abstract class AppTypography {
     letterSpacing: -0.8,
     color: AppColors.primaryText,
     height: 1.2,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle screenTitle = TextStyle(
@@ -16,6 +17,7 @@ abstract class AppTypography {
     letterSpacing: -0.6,
     color: AppColors.primaryText,
     height: 1.25,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle sectionTitle = TextStyle(
@@ -24,6 +26,7 @@ abstract class AppTypography {
     letterSpacing: -0.4,
     color: AppColors.primaryText,
     height: 1.3,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle cardTitle = TextStyle(
@@ -32,6 +35,7 @@ abstract class AppTypography {
     letterSpacing: -0.2,
     color: AppColors.secondaryText,
     height: 1.3,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle financialValue = TextStyle(
@@ -40,6 +44,7 @@ abstract class AppTypography {
     letterSpacing: -0.8,
     color: AppColors.primaryText,
     height: 1.15,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle body = TextStyle(
@@ -48,6 +53,7 @@ abstract class AppTypography {
     letterSpacing: -0.1,
     color: AppColors.primaryText,
     height: 1.4,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle caption = TextStyle(
@@ -56,5 +62,6 @@ abstract class AppTypography {
     letterSpacing: 0,
     color: AppColors.mutedText,
     height: 1.35,
+    decoration: TextDecoration.none,
   );
 }

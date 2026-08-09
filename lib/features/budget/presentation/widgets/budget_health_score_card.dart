@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:expense_tracker/core/presentation/widgets/liquid_glass_card.dart';
-import 'package:expense_tracker/core/theme/liquid_glass_theme.dart';
+import 'package:expense_tracker/core/theme/app_colors.dart';
 
 class BudgetHealthScoreCard extends StatefulWidget {
   final int healthScore;
@@ -64,31 +63,39 @@ class _BudgetHealthScoreCardState extends State<BudgetHealthScoreCard>
 
   @override
   Widget build(BuildContext context) {
-    final scoreColor = widget.healthScore >= 80
-        ? const Color(0xFF10B981)
-        : (widget.healthScore >= 60 ? const Color(0xFFF59E0B) : const Color(0xFFEF4444));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.card : Colors.white;
+    final borderColor = isDark ? AppColors.border : AppColors.lightBorder;
+    final textColor = isDark ? AppColors.primaryText : AppColors.lightTextPrimary;
+    final subTextColor = isDark ? AppColors.secondaryText : AppColors.lightTextSecondary;
 
-    return LiquidGlassCard(
-      borderRadius: 36.0,
-      padding: const EdgeInsets.all(24),
-      borderColor: scoreColor.withValues(alpha: 0.4),
-      shadows: LiquidGlassTheme.ambientShadows(scoreColor),
+    final scoreColor = widget.healthScore >= 80
+        ? AppColors.success
+        : (widget.healthScore >= 60 ? AppColors.warning : AppColors.error);
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.shield_outlined, color: Color(0xFF06B6D4), size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
+                  const SizedBox(width: 8),
                   Text(
                     'BUDGET HEALTH SCORE',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
-                      color: Colors.white,
+                      letterSpacing: 1.0,
+                      color: textColor,
                     ),
                   ),
                 ],
@@ -96,8 +103,8 @@ class _BudgetHealthScoreCardState extends State<BudgetHealthScoreCard>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: scoreColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(14),
+                  color: scoreColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '${widget.healthScore}% Control',
@@ -130,6 +137,7 @@ class _BudgetHealthScoreCardState extends State<BudgetHealthScoreCard>
                       painter: _HealthGaugePainter(
                         sweepAngle: sweepAngle,
                         color: scoreColor,
+                        trackColor: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.lightSurfaceVariant,
                       ),
                     ),
                     Column(
@@ -137,19 +145,19 @@ class _BudgetHealthScoreCardState extends State<BudgetHealthScoreCard>
                       children: [
                         Text(
                           scoreVal.toInt().toString(),
-                          style: const TextStyle(
-                            fontSize: 44,
+                          style: TextStyle(
+                            fontSize: 40,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                            color: textColor,
                             letterSpacing: -1.5,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Score',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white60,
+                            color: subTextColor,
                           ),
                         ),
                       ],
@@ -165,16 +173,16 @@ class _BudgetHealthScoreCardState extends State<BudgetHealthScoreCard>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+              color: scoreColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: scoreColor.withValues(alpha: 0.3)),
             ),
             child: Text(
               widget.healthLabel,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: scoreColor,
               ),
             ),
           ),
@@ -187,8 +195,13 @@ class _BudgetHealthScoreCardState extends State<BudgetHealthScoreCard>
 class _HealthGaugePainter extends CustomPainter {
   final double sweepAngle;
   final Color color;
+  final Color trackColor;
 
-  _HealthGaugePainter({required this.sweepAngle, required this.color});
+  _HealthGaugePainter({
+    required this.sweepAngle,
+    required this.color,
+    required this.trackColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -196,7 +209,7 @@ class _HealthGaugePainter extends CustomPainter {
     final radius = (size.width / 2) - 6;
 
     final bgPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.1)
+      ..color = trackColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10.0;
 

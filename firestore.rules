@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User profile data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Expenses subcollection
+      match /expenses/{expenseId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Income subcollection
+      match /income/{incomeId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Budgets subcollection
+      match /budgets/{budgetId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Recurring transactions subcollection
+      match /recurring/{recurringId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Savings goals subcollection
+      match /savings_goals/{goalId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // Categories subcollection
+      match /categories/{categoryId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}

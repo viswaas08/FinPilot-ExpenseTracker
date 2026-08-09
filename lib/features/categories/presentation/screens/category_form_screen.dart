@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/core/presentation/widgets/custom_text_field.dart';
 import 'package:expense_tracker/core/presentation/widgets/glass_container.dart';
-import 'package:expense_tracker/core/presentation/widgets/liquid_background.dart';
 import 'package:expense_tracker/core/presentation/widgets/liquid_glass_card.dart';
 import 'package:expense_tracker/core/presentation/widgets/shake_widget.dart';
+import 'package:expense_tracker/core/theme/app_colors.dart';
 import 'package:expense_tracker/features/categories/domain/entities/transaction_category.dart';
 import 'package:expense_tracker/features/categories/presentation/controllers/category_controller.dart';
 import 'package:expense_tracker/features/categories/presentation/widgets/color_picker_row.dart';
@@ -113,163 +113,206 @@ class _CategoryFormScreenState extends ConsumerState<CategoryFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.initialCategory != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
     final budgetVal = _hasMonthlyLimit ? (double.tryParse(_budgetController.text.trim()) ?? 0.0) : 0.0;
 
-    return LiquidBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          surfaceTintColor: Colors.transparent,
-          scrolledUnderElevation: 0,
-          title: Text(
-            isEditing ? 'Edit Category' : 'Create Category',
-            style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
-          ),
-          centerTitle: true,
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: AppBar(
+        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: textColor),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Real-Time Live Preview Badge Card
-                LivePreviewBadge(
-                  name: _nameController.text,
-                  icon: _selectedIcon,
-                  color: _selectedColor,
-                  budget: budgetVal,
-                ),
-                const SizedBox(height: 24),
+        title: Text(
+          isEditing ? 'Edit Category' : 'Create Category',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+            color: textColor,
+            decoration: TextDecoration.none,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Real-Time Live Preview Badge Card
+              LivePreviewBadge(
+                name: _nameController.text,
+                icon: _selectedIcon,
+                color: _selectedColor,
+                budget: budgetVal,
+              ),
+              const SizedBox(height: 20),
 
-                // Category Name Text Field with Shake Widget
-                ShakeWidget(
-                  key: _shakeKey,
-                  child: GlassContainer(
-                    borderRadius: 28.0,
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomTextField(
-                          label: 'Category Name',
-                          hintText: 'e.g. Subscriptions, Gym, Coffee',
-                          controller: _nameController,
-                          prefixIcon: Icons.label_outline_rounded,
-                          onChanged: (val) => setState(() {}),
-                        ),
-                        if (_validationError != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            _validationError!,
-                            style: const TextStyle(
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Vibrant Neon Color Picker Row
-                const Text(
-                  'Category Color',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ColorPickerRow(
-                  selectedColor: _selectedColor,
-                  onColorSelected: (col) => setState(() => _selectedColor = col),
-                ),
-                const SizedBox(height: 24),
-
-                // Collapsible Frosted Icon Picker Grid
-                const Text(
-                  'Select Icon',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                IconPickerGrid(
-                  selectedIcon: _selectedIcon,
-                  accentColor: _selectedColor,
-                  onIconSelected: (icon) => setState(() => _selectedIcon = icon),
-                ),
-                const SizedBox(height: 24),
-
-                // Optional Monthly Budget Limit Toggle & Field
-                LiquidGlassCard(
-                  borderRadius: 28.0,
-                  padding: const EdgeInsets.all(20),
+              // Category Name Text Field with Shake Widget
+              ShakeWidget(
+                key: _shakeKey,
+                child: GlassContainer(
+                  borderRadius: 16.0,
+                  padding: const EdgeInsets.all(18),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Row(
-                            children: [
-                              Icon(Icons.pie_chart_outline_rounded, color: Color(0xFF06B6D4)),
-                              SizedBox(width: 10),
-                              Text(
-                                'Set Monthly Limit?',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Switch(
-                            value: _hasMonthlyLimit,
-                            activeTrackColor: _selectedColor,
-                            onChanged: (val) => setState(() => _hasMonthlyLimit = val),
-                          ),
-                        ],
+                      CustomTextField(
+                        label: 'Category Name',
+                        hintText: 'e.g. Subscriptions, Gym, Coffee',
+                        controller: _nameController,
+                        prefixIcon: Icons.label_outline_rounded,
+                        onChanged: (val) => setState(() {}),
                       ),
-                      if (_hasMonthlyLimit) ...[
-                        const SizedBox(height: 16),
-                        CustomTextField(
-                          label: 'Monthly Limit (\$)',
-                          hintText: '500.00',
-                          controller: _budgetController,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          prefixIcon: Icons.attach_money_rounded,
-                          onChanged: (val) => setState(() {}),
+                      if (_validationError != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          _validationError!,
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            decoration: TextDecoration.none,
+                          ),
                         ),
                       ],
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+              ),
+              const SizedBox(height: 20),
 
-                // Shining Action Pill Button
-                ShiningPillButton(
-                  label: isEditing ? 'Save Changes' : 'Create Category',
-                  accentColor: _selectedColor,
-                  isLoading: _isLoading,
-                  isSuccess: _isSuccess,
-                  onPressed: _submit,
+              // Vibrant Color Picker Row
+              Text(
+                'Category Color',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                  decoration: TextDecoration.none,
                 ),
-                const SizedBox(height: 40),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              ColorPickerRow(
+                selectedColor: _selectedColor,
+                onColorSelected: (col) => setState(() => _selectedColor = col),
+              ),
+              const SizedBox(height: 20),
+
+              // Icon Picker Grid
+              Text(
+                'Select Icon',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              const SizedBox(height: 10),
+              IconPickerGrid(
+                selectedIcon: _selectedIcon,
+                accentColor: _selectedColor,
+                onIconSelected: (icon) => setState(() => _selectedIcon = icon),
+              ),
+              const SizedBox(height: 20),
+
+              // Optional Monthly Budget Limit Toggle, Field & Quick Preset Chips
+              LiquidGlassCard(
+                borderRadius: 16.0,
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.pie_chart_outline_rounded, color: Color(0xFF06B6D4)),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Set Monthly Budget Limit?',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: textColor,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: _hasMonthlyLimit,
+                          activeTrackColor: _selectedColor,
+                          onChanged: (val) => setState(() => _hasMonthlyLimit = val),
+                        ),
+                      ],
+                    ),
+                    if (_hasMonthlyLimit) ...[
+                      const SizedBox(height: 14),
+                      CustomTextField(
+                        label: 'Monthly Limit (₹)',
+                        hintText: '2000',
+                        controller: _budgetController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        prefixIcon: Icons.currency_rupee_rounded,
+                        onChanged: (val) => setState(() {}),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Quick Preset Chips
+                      Text(
+                        'Quick Presets:',
+                        style: TextStyle(fontSize: 11, color: subTextColor, decoration: TextDecoration.none),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: [500, 1000, 2500, 5000, 10000].map((preset) {
+                          return ActionChip(
+                            label: Text('₹$preset'),
+                            backgroundColor: isDark ? const Color(0xFF1E293B) : AppColors.lightSurfaceVariant,
+                            labelStyle: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                              decoration: TextDecoration.none,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _budgetController.text = preset.toString();
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+
+              // Action Button
+              ShiningPillButton(
+                label: isEditing ? 'Save Changes' : 'Create Category',
+                accentColor: _selectedColor,
+                isLoading: _isLoading,
+                isSuccess: _isSuccess,
+                onPressed: _submit,
+              ),
+              const SizedBox(height: 40),
+            ],
           ),
         ),
       ),

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1003469021217",
+    "project_id": "expense-tracker-f9567",
+    "storage_bucket": "expense-tracker-f9567.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1003469021217:android:e71393983322f056a64360",
+        "android_client_info": {
+          "package_name": "com.example.expense_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1003469021217-u03c8jgqri0lfjp93rbs070m3f0nb445.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUvTmBEEiWpoFnTYSXcV5y3R0Q437S_70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1003469021217-u03c8jgqri0lfjp93rbs070m3f0nb445.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

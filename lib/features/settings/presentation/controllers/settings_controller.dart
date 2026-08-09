@@ -6,12 +6,14 @@ class SettingsState {
   final UserPreferencesEntity preferences;
   final bool isBackingUp;
   final bool isExporting;
+  final bool isResetting;
   final String? statusMessage;
 
   const SettingsState({
     this.preferences = const UserPreferencesEntity(),
     this.isBackingUp = false,
     this.isExporting = false,
+    this.isResetting = false,
     this.statusMessage,
   });
 
@@ -19,12 +21,14 @@ class SettingsState {
     UserPreferencesEntity? preferences,
     bool? isBackingUp,
     bool? isExporting,
+    bool? isResetting,
     String? statusMessage,
   }) {
     return SettingsState(
       preferences: preferences ?? this.preferences,
       isBackingUp: isBackingUp ?? this.isBackingUp,
       isExporting: isExporting ?? this.isExporting,
+      isResetting: isResetting ?? this.isResetting,
       statusMessage: statusMessage,
     );
   }
@@ -92,6 +96,17 @@ class SettingsController extends StateNotifier<SettingsState> {
     state = state.copyWith(
       isExporting: false,
       statusMessage: 'Financial records exported to JSON & CSV format.',
+    );
+  }
+
+  Future<void> resetAllData() async {
+    state = state.copyWith(isResetting: true, statusMessage: null);
+    await _repository.resetAllData();
+    await Future.delayed(const Duration(milliseconds: 800));
+    state = SettingsState(
+      preferences: const UserPreferencesEntity(),
+      isResetting: false,
+      statusMessage: 'All application data and preferences have been reset.',
     );
   }
 }

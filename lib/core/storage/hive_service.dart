@@ -221,6 +221,20 @@ class HiveService {
   Future<void> deleteIncome(String id) async {
     await _incomeBox.delete(id);
   }
+
+  Future<void> resetAllData() async {
+    await _expensesBox.clear();
+    await _categoriesBox.clear();
+    await _authBox.clear();
+    await _aiInsightsBox.clear();
+    await _budgetBox.clear();
+    await _recurringBox.clear();
+    await _notificationsBox.clear();
+    await _notificationSettingsBox.clear();
+    await _settingsBox.clear();
+    await _savingsGoalsBox.clear();
+    await _incomeBox.clear();
+  }
 }
 
 final hiveServiceProvider = Provider<HiveService>((ref) {

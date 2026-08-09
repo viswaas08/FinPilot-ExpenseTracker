@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../firebase_options.dart';
 
 class FirebaseService {
   bool _isInitialized = false;
@@ -9,7 +10,9 @@ class FirebaseService {
 
   Future<void> init() async {
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       _isInitialized = true;
       debugPrint('Firebase successfully initialized');
     } catch (e) {

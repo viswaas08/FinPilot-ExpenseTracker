@@ -24,6 +24,12 @@ abstract class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.lightBackground,
       fontFamily: 'Roboto',
+      textTheme: ThemeData.light().textTheme.apply(
+        decoration: TextDecoration.none,
+        fontFamily: 'Roboto',
+        bodyColor: AppColors.lightTextPrimary,
+        displayColor: AppColors.lightTextPrimary,
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -35,6 +41,7 @@ abstract class AppTheme {
           color: AppColors.lightTextPrimary,
           fontSize: 20,
           fontWeight: FontWeight.w700,
+          decoration: TextDecoration.none,
         ),
       ),
       cardTheme: CardThemeData(
@@ -130,6 +137,12 @@ abstract class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.darkBackground,
       fontFamily: 'Roboto',
+      textTheme: ThemeData.dark().textTheme.apply(
+        decoration: TextDecoration.none,
+        fontFamily: 'Roboto',
+        bodyColor: AppColors.darkTextPrimary,
+        displayColor: AppColors.darkTextPrimary,
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -141,6 +154,7 @@ abstract class AppTheme {
           color: AppColors.darkTextPrimary,
           fontSize: 20,
           fontWeight: FontWeight.w700,
+          decoration: TextDecoration.none,
         ),
       ),
       cardTheme: CardThemeData(
