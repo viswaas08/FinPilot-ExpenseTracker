@@ -107,7 +107,8 @@ class _BudgetFormScreenState extends ConsumerState<BudgetFormScreen> {
                           labelStyle: TextStyle(color: subTextColor),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        initialValue: selectedPresetCategory,
+                        // ignore: deprecated_member_use
+                        value: selectedPresetCategory,
                         items: availableCategories.map((c) {
                           return DropdownMenuItem<String>(
                             value: c.name,
