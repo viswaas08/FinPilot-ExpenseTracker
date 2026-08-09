@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
 import 'package:expense_tracker/core/theme/app_typography.dart';
-import 'package:expense_tracker/core/utils/currency_formatter.dart';
 import 'package:expense_tracker/core/presentation/widgets/titanium_metric_card.dart';
 import 'package:expense_tracker/core/presentation/widgets/titanium_transaction_tile.dart';
 import 'package:expense_tracker/features/analytics/presentation/controllers/analytics_controller.dart';
@@ -167,7 +166,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                       final item = state.topTransactions[index];
                       return TitaniumTransactionTile(
                         title: item.title,
-                        category: item.categoryId,
+                        category: item.category.name,
                         dateText: '${item.date.day}/${item.date.month}/${item.date.year}',
                         amount: item.amount,
                         isIncome: false,

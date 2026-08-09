@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:expense_tracker/core/theme/app_colors.dart';
+import 'package:expense_tracker/core/theme/app_typography.dart';
+import 'package:expense_tracker/core/presentation/widgets/titanium_transaction_tile.dart';
 import 'package:expense_tracker/core/design_system/quantum_tokens.dart';
-import 'package:expense_tracker/core/design_system/quantum_glass_card.dart';
 import 'package:expense_tracker/core/design_system/quantum_button.dart';
 import 'package:expense_tracker/core/design_system/quantum_dialog.dart';
 import 'package:expense_tracker/core/design_system/quantum_textfield.dart';
@@ -194,114 +196,134 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
   Widget build(BuildContext context) {
     final incomeList = ref.watch(incomeControllerProvider);
     final totalIncome = incomeList.fold<double>(0.0, (sum, item) => sum + item.amount);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.primaryText : AppColors.lightTextPrimary;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Income Stream Tracker', style: QuantumTypography.headlineMedium),
-              QuantumButton(
-                label: 'Add Income',
-                icon: Icons.add_rounded,
-                height: 38,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                backgroundColor: QuantumColors.green,
+              Text(
+                'Income Stream Tracker',
+                style: AppTypography.screenTitle.copyWith(color: textColor, fontSize: 22),
+              ),
+              ElevatedButton.icon(
                 onPressed: _showAddIncomeDialog,
+                icon: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
+                label: const Text(
+                  'Add Income',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  elevation: 0,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
 
           // Hero Summary Card
-          QuantumGlassCard(
-            material: QuantumGlassMaterial.lg,
-            borderColor: QuantumColors.green.withValues(alpha: 0.4),
+          Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.surface : Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppColors.success.withValues(alpha: 0.3), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('TOTAL MONTHLY INCOME STREAM', style: QuantumTypography.caption),
-                const SizedBox(height: 4),
                 Text(
-                  CurrencyFormatter.format(totalIncome),
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: QuantumColors.green),
+                  'TOTAL MONTHLY INCOME',
+                  style: AppTypography.caption.copyWith(color: AppColors.secondaryText, fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 6),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    CurrencyFormatter.format(totalIncome),
+                    style: AppTypography.financialValue.copyWith(color: AppColors.success, fontSize: 32),
+                  ),
+                ),
+                const SizedBox(height: 10),
                 Text(
                   'Tracked across ${incomeList.length} active income source(s).',
-                  style: QuantumTypography.bodyMedium,
+                  style: AppTypography.caption.copyWith(color: isDark ? AppColors.mutedText : AppColors.lightTextSecondary),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
-          const Text('Income Sources', style: QuantumTypography.titleLarge),
+          Text(
+            'Income Sources',
+            style: AppTypography.sectionTitle.copyWith(color: textColor, fontSize: 18),
+          ),
           const SizedBox(height: 14),
 
           if (incomeList.isEmpty)
-            const QuantumGlassCard(
-              material: QuantumGlassMaterial.md,
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surface : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
+              ),
               child: Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.0),
-                  child: Text('No income sources recorded yet.', style: QuantumTypography.bodyMedium),
+                child: Text(
+                  'No income sources recorded yet.',
+                  style: AppTypography.body.copyWith(color: isDark ? AppColors.mutedText : AppColors.lightTextSecondary),
                 ),
               ),
             )
           else
-            ListView.separated(
+            ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: incomeList.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final item = incomeList[index];
-                return QuantumGlassCard(
-                  material: QuantumGlassMaterial.md,
-                  borderColor: QuantumColors.green.withValues(alpha: 0.3),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: QuantumColors.green.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Icon(Icons.arrow_downward_rounded, color: QuantumColors.green, size: 22),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.source, style: QuantumTypography.titleMedium),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${item.category} • ${item.date.day}/${item.date.month}/${item.date.year}',
-                              style: QuantumTypography.caption,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        CurrencyFormatter.format(item.amount),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: QuantumColors.green),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, color: QuantumColors.red, size: 18),
-                        onPressed: () => ref.read(incomeControllerProvider.notifier).deleteIncome(item.id),
-                      ),
-                    ],
+                return Dismissible(
+                  key: Key(item.id),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (_) => ref.read(incomeControllerProvider.notifier).deleteIncome(item.id),
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                  ),
+                  child: TitaniumTransactionTile(
+                    title: item.source,
+                    category: item.category,
+                    dateText: '${item.date.day}/${item.date.month}/${item.date.year}',
+                    amount: item.amount,
+                    isIncome: true,
+                    icon: Icons.arrow_downward_rounded,
+                    iconColor: AppColors.success,
                   ),
                 );
               },
             ),
-          const SizedBox(height: 60),
+          const SizedBox(height: 80),
         ],
       ),
     );

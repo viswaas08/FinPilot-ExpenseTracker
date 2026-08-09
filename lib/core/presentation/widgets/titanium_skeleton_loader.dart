@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:expense_tracker/core/theme/app_colors.dart';
 
 class TitaniumSkeletonLoader extends StatefulWidget {
   final double height;
