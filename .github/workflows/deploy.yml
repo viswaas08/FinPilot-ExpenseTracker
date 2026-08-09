@@ -40,6 +40,7 @@ jobs:
         run: flutter build web --release
 
       - name: Deploy to Firebase Hosting
+        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_EXPENSE_TRACKER_F9567 != '' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
@@ -52,7 +53,7 @@ jobs:
 
       - name: Create GitHub Release and Upload APK
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: always() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         with:
           tag_name: release-${{ github.sha }}
           name: Production Release ${{ github.sha }}
