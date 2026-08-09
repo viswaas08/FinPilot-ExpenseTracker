@@ -85,44 +85,14 @@ class _QuantumButtonState extends State<QuantumButton> {
         onTapUp: (_) => setState(() => _isPressed = false),
         onTapCancel: () => setState(() => _isPressed = false),
         onTap: isDisabled ? null : widget.onPressed,
-        child: AnimatedContainer(
-          duration: QuantumMotion.fast,
-          curve: QuantumMotion.spring,
+        child: Container(
           height: widget.height,
-          transform: Matrix4.diagonal3Values(scale, scale, 1.0),
           padding: widget.padding,
           decoration: BoxDecoration(
-            borderRadius: QuantumRadius.borderCapsule,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                widget.backgroundColor,
-                widget.backgroundColor.withValues(alpha: 0.8),
-              ],
-            ),
-            boxShadow: [
-              if (_isHovered && !isDisabled)
-                BoxShadow(
-                  color: widget.backgroundColor.withValues(alpha: 0.5),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
-                ),
-            ],
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.3),
-              width: 1.2,
-            ),
+            color: isDisabled ? widget.backgroundColor.withValues(alpha: 0.5) : widget.backgroundColor,
+            borderRadius: BorderRadius.circular(12.0),
           ),
-          child: ClipRRect(
-            borderRadius: QuantumRadius.borderCapsule,
-            child: kIsWeb
-                ? innerRow
-                : BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: innerRow,
-                  ),
-          ),
+          child: Center(child: innerRow),
         ),
       ),
     );

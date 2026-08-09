@@ -86,13 +86,21 @@ class TitaniumTransactionTile extends StatelessWidget {
               ),
             ),
 
-            // Amount
-            Text(
-              '$prefix${CurrencyFormatter.format(amount)}',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: isDark ? (isIncome ? AppColors.success : AppColors.primaryText) : amountColor,
+            const SizedBox(width: 8),
+            // Amount (Auto-fitting)
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 130),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '$prefix${CurrencyFormatter.format(amount)}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? (isIncome ? AppColors.success : AppColors.primaryText) : amountColor,
+                  ),
+                ),
               ),
             ),
           ],

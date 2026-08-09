@@ -206,23 +206,27 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Income Stream Tracker',
-                style: AppTypography.screenTitle.copyWith(color: textColor, fontSize: 22),
+              Expanded(
+                child: Text(
+                  'Income Stream Tracker',
+                  style: AppTypography.screenTitle.copyWith(color: textColor, fontSize: 20),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: _showAddIncomeDialog,
-                icon: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
+                icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
                 label: const Text(
                   'Add Income',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.white),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.success,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   elevation: 0,
                 ),
               ),

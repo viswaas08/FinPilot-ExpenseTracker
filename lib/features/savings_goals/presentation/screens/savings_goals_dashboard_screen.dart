@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:expense_tracker/core/theme/app_colors.dart';
+import 'package:expense_tracker/core/theme/app_typography.dart';
 import 'package:expense_tracker/core/design_system/quantum_tokens.dart';
 import 'package:expense_tracker/core/design_system/quantum_glass_card.dart';
 import 'package:expense_tracker/core/design_system/quantum_button.dart';
@@ -92,6 +94,8 @@ class _SavingsGoalsDashboardScreenState
       return true;
     }).toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(24.0),
@@ -99,71 +103,94 @@ class _SavingsGoalsDashboardScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Savings Goals', style: QuantumTypography.headlineMedium),
-              QuantumButton(
-                label: 'Create Custom Goal',
-                icon: Icons.add_rounded,
-                height: 38,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+              Expanded(
+                child: Text(
+                  'Savings Goals',
+                  style: AppTypography.screenTitle.copyWith(
+                    color: isDark ? AppColors.primaryText : AppColors.lightTextPrimary,
+                    fontSize: 22,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const SavingsGoalFormScreen()),
                   );
                 },
+                icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                label: const Text(
+                  'New Goal',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
 
           // Overall Hero Summary Card
-          QuantumGlassCard(
-            material: QuantumGlassMaterial.lg,
-            borderColor: QuantumColors.primaryAccent.withValues(alpha: 0.4),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.card : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'TOTAL SAVINGS ACCUMULATED',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: QuantumColors.mutedText,
-                            letterSpacing: 0.8,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'TOTAL SAVINGS ACCUMULATED',
+                            style: AppTypography.caption.copyWith(
+                              color: isDark ? AppColors.secondaryText : AppColors.lightTextSecondary,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          CurrencyFormatter.format(state.totalSaved),
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w900,
-                            color: QuantumColors.primaryAccent,
-                            letterSpacing: -0.5,
+                          const SizedBox(height: 4),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              CurrencyFormatter.format(state.totalSaved),
+                              style: AppTypography.financialValue.copyWith(
+                                color: AppColors.primary,
+                                fontSize: 26,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: QuantumColors.primaryAccent.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: QuantumColors.primaryAccent.withValues(alpha: 0.4)),
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         '${state.overallProgress.toStringAsFixed(0)}% Target',
                         style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: QuantumColors.primaryAccent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
