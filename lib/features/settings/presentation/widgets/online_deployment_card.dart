@@ -156,7 +156,7 @@ class _OnlineDeploymentCardState extends State<OnlineDeploymentCard> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.primary,
               shape: BoxShape.circle,
             ),
@@ -322,8 +322,8 @@ class _OnlineDeploymentCardState extends State<OnlineDeploymentCard> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
                     ),
-                    child: Center(
-                      child: const Row(
+                    child: const Center(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.rocket_launch_rounded, color: AppColors.secondary, size: 18),

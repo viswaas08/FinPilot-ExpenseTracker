@@ -5,7 +5,6 @@ import 'package:expense_tracker/core/theme/app_colors.dart';
 import 'package:expense_tracker/core/utils/currency_formatter.dart';
 import 'package:expense_tracker/core/presentation/widgets/titanium_metric_card.dart';
 import 'package:expense_tracker/core/presentation/widgets/titanium_budget_progress.dart';
-import 'package:expense_tracker/core/presentation/widgets/titanium_transaction_tile.dart';
 import 'package:expense_tracker/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:expense_tracker/features/budget/presentation/controllers/budget_controller.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/weekly_spending_chart.dart';
@@ -38,7 +37,6 @@ class _PersonalFinanceDashboardScreenState
 
     final netSavings = (expenseState.totalIncome - expenseState.totalExpense).clamp(0.0, double.infinity);
     final totalLimit = budgetState.activeBudget?.totalLimit ?? 2500.0;
-    final remainingBudget = (totalLimit - expenseState.totalExpense).clamp(0.0, double.infinity);
     final savingsRate = expenseState.totalIncome > 0 ? ((netSavings / expenseState.totalIncome) * 100).clamp(0.0, 100.0) : 0.0;
 
     return LayoutBuilder(
@@ -406,98 +404,6 @@ class _PersonalFinanceDashboardScreenState
           Text(
             label,
             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: textColor),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FinPilotMetricCard extends StatelessWidget {
-  final String title;
-  final String amount;
-  final String badgeText;
-  final Color badgeColor;
-  final IconData icon;
-  final Color iconBg;
-  final Color iconColor;
-
-  const _FinPilotMetricCard({
-    required this.title,
-    required this.amount,
-    required this.badgeText,
-    required this.badgeColor,
-    required this.icon,
-    required this.iconBg,
-    required this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-    final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.6) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: subTextColor,
-                    letterSpacing: 0.5,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, size: 14, color: iconColor),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            amount,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: textColor,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              badgeText,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: badgeColor,
-              ),
-            ),
           ),
         ],
       ),

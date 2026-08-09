@@ -108,12 +108,12 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                         ),
                       ),
                       const SizedBox(width: 20),
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           children: [
-                            const GlassCashFlowBarChart(),
-                            const SizedBox(height: 20),
-                            const YearlyContributionHeatmap(),
+                            GlassCashFlowBarChart(),
+                            SizedBox(height: 20),
+                            YearlyContributionHeatmap(),
                           ],
                         ),
                       ),

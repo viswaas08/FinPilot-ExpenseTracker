@@ -1,9 +1,5 @@
-import 'dart:ui';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'colors.dart';
-import 'motion.dart';
-import 'radius.dart';
 
 class QuantumButton extends StatefulWidget {
   final String label;
@@ -85,14 +81,18 @@ class _QuantumButtonState extends State<QuantumButton> {
         onTapUp: (_) => setState(() => _isPressed = false),
         onTapCancel: () => setState(() => _isPressed = false),
         onTap: isDisabled ? null : widget.onPressed,
-        child: Container(
-          height: widget.height,
-          padding: widget.padding,
-          decoration: BoxDecoration(
-            color: isDisabled ? widget.backgroundColor.withValues(alpha: 0.5) : widget.backgroundColor,
-            borderRadius: BorderRadius.circular(12.0),
+        child: AnimatedScale(
+          scale: scale,
+          duration: const Duration(milliseconds: 150),
+          child: Container(
+            height: widget.height,
+            padding: widget.padding,
+            decoration: BoxDecoration(
+              color: isDisabled ? widget.backgroundColor.withValues(alpha: 0.5) : widget.backgroundColor,
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Center(child: innerRow),
           ),
-          child: Center(child: innerRow),
         ),
       ),
     );

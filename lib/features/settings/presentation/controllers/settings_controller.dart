@@ -103,8 +103,8 @@ class SettingsController extends StateNotifier<SettingsState> {
     state = state.copyWith(isResetting: true, statusMessage: null);
     await _repository.resetAllData();
     await Future.delayed(const Duration(milliseconds: 800));
-    state = SettingsState(
-      preferences: const UserPreferencesEntity(),
+    state = const SettingsState(
+      preferences: UserPreferencesEntity(),
       isResetting: false,
       statusMessage: 'All application data and preferences have been reset.',
     );

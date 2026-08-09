@@ -71,7 +71,6 @@ class DangerZoneCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
     return LiquidGlassCard(
@@ -81,10 +80,10 @@ class DangerZoneCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Icon(Icons.delete_forever_outlined, color: AppColors.expense, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.delete_forever_outlined, color: AppColors.expense, size: 20),
+              SizedBox(width: 8),
               Text(
                 'Danger Zone',
                 style: TextStyle(
