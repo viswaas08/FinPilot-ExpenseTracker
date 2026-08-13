@@ -98,3 +98,40 @@ jobs:
           name: web-release
           path: build/web
           if-no-files-found: ignore
+
+  publish_release:
+    name: 🚀 Publish Official GitHub Release & Packages
+    needs: [build_android, build_web]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk
+
+      - name: 📥 Download AAB Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-aab
+          path: build/app/outputs/bundle/release
+
+      - name: 🚀 Publish Release to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: FinPilot Enterprise Release v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

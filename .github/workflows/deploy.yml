@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-and-deploy:
-    name: Build Web, Deploy to Firebase & Create APK Release
+    name: Build Web, Build APK, Deploy to Firebase & Create Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -42,7 +42,23 @@ jobs:
       - name: Build Flutter Web Bundle
         run: flutter build web --release
 
+      - name: Build Android Release APK
+        run: flutter build apk --release
+
+      - name: Create GitHub Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        if: success()
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Production Release v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Deploy to Firebase Hosting
+        continue-on-error: true
         if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_EXPENSE_TRACKER_F9567 != '' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -50,18 +66,3 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_EXPENSE_TRACKER_F9567 }}'
           channelId: live
           projectId: expense-tracker-f9567
-
-      - name: Build Android Release APK
-        run: flutter build apk --release
-
-      - name: Create GitHub Release and Upload APK
-        uses: softprops/action-gh-release@v2
-        if: success() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        with:
-          tag_name: release-${{ github.sha }}
-          name: Production Release ${{ github.sha }}
-          draft: false
-          prerelease: false
-          files: build/app/outputs/flutter-apk/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
