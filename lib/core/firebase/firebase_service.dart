@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,17 @@ class FirebaseService {
         options: DefaultFirebaseOptions.currentPlatform,
       );
       _isInitialized = true;
+
+      // Configure Firestore Settings for Offline Persistence
+      try {
+        FirebaseFirestore.instance.settings = const Settings(
+          persistenceEnabled: true,
+          cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        );
+      } catch (e) {
+        debugPrint('Firestore settings already initialized or web platform: $e');
+      }
+
       debugPrint('Firebase successfully initialized');
     } catch (e) {
       _isInitialized = false;
