@@ -58,23 +58,10 @@ class IncomeNotifier extends StateNotifier<List<IncomeEntity>> {
 
   void _loadIncomes() {
     final raw = _hiveService.getAllIncome();
-    if (raw.isEmpty) {
-      final initial = [
-        IncomeEntity(
-          id: 'inc-1',
-          source: 'Primary Salary',
-          amount: 125000.0,
-          date: DateTime.now().subtract(const Duration(days: 5)),
-          category: 'Salary',
-          isRecurring: true,
-        ),
-      ];
-      for (final inc in initial) {
-        _hiveService.saveIncome(inc.id, inc.toJson());
-      }
-      state = initial;
-    } else {
+    if (raw.isNotEmpty) {
       state = raw.map((json) => IncomeEntity.fromJson(Map<String, dynamic>.from(json as Map))).toList();
+    } else {
+      state = [];
     }
   }
 
@@ -282,17 +269,92 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
 
           if (incomeList.isEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surface : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
               ),
-              child: Center(
-                child: Text(
-                  'No income sources recorded yet.',
-                  style: AppTypography.body.copyWith(color: isDark ? AppColors.mutedText : AppColors.lightTextSecondary),
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    'No income streams recorded yet.',
+                    style: AppTypography.body.copyWith(color: isDark ? AppColors.mutedText : AppColors.lightTextSecondary),
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Quick Add Suggestions:',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.success,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      ActionChip(
+                        avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.success),
+                        label: const Text('Primary Salary (₹1,00,000)'),
+                        backgroundColor: AppColors.success.withValues(alpha: 0.1),
+                        side: BorderSide(color: AppColors.success.withValues(alpha: 0.3)),
+                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
+                        onPressed: () {
+                          ref.read(incomeControllerProvider.notifier).addIncome(
+                                IncomeEntity(
+                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                  source: 'Primary Salary',
+                                  amount: 100000.0,
+                                  date: DateTime.now(),
+                                  category: 'Salary',
+                                  isRecurring: true,
+                                ),
+                              );
+                        },
+                      ),
+                      ActionChip(
+                        avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.success),
+                        label: const Text('Freelance Project (₹25,000)'),
+                        backgroundColor: AppColors.success.withValues(alpha: 0.1),
+                        side: BorderSide(color: AppColors.success.withValues(alpha: 0.3)),
+                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
+                        onPressed: () {
+                          ref.read(incomeControllerProvider.notifier).addIncome(
+                                IncomeEntity(
+                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                  source: 'Freelance Project',
+                                  amount: 25000.0,
+                                  date: DateTime.now(),
+                                  category: 'Freelance',
+                                ),
+                              );
+                        },
+                      ),
+                      ActionChip(
+                        avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.success),
+                        label: const Text('Investments & Dividends (₹15,000)'),
+                        backgroundColor: AppColors.success.withValues(alpha: 0.1),
+                        side: BorderSide(color: AppColors.success.withValues(alpha: 0.3)),
+                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
+                        onPressed: () {
+                          ref.read(incomeControllerProvider.notifier).addIncome(
+                                IncomeEntity(
+                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                  source: 'Stock Dividends',
+                                  amount: 15000.0,
+                                  date: DateTime.now(),
+                                  category: 'Investments',
+                                ),
+                              );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             )
           else

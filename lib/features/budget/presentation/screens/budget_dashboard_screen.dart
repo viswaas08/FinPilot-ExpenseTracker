@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
+import 'package:expense_tracker/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_tracker/features/budget/presentation/controllers/budget_controller.dart';
 import 'package:expense_tracker/features/budget/presentation/screens/budget_form_screen.dart';
 import 'package:expense_tracker/features/budget/presentation/widgets/budget_health_score_card.dart';
@@ -167,22 +168,90 @@ class BudgetDashboardScreen extends ConsumerWidget {
             // 6. List of Category Budget Cards
             if (activeBudget == null || activeBudget.categoryBudgets.isEmpty)
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                 ),
-                child: Center(
-                  child: Text(
-                    'No category budget allocations set. Tap "Edit Budget" to define monthly spending limits.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: subTextColor,
-                      fontSize: 14,
-                      decoration: TextDecoration.none,
+                child: Column(
+                  children: [
+                    Text(
+                      'No category budget allocations set yet.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: subTextColor,
+                        fontSize: 14,
+                        decoration: TextDecoration.none,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Quick Add Category Budget Suggestions:',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        ActionChip(
+                          avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.primary),
+                          label: const Text('Food (₹6,000)'),
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+                          labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                          onPressed: () {
+                            ref.read(budgetControllerProvider.notifier).addCategoryBudget(
+                                  const CategoryBudget(categoryName: 'Food', limitAmount: 6000.0),
+                                );
+                          },
+                        ),
+                        ActionChip(
+                          avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.primary),
+                          label: const Text('Bills (₹7,000)'),
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+                          labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                          onPressed: () {
+                            ref.read(budgetControllerProvider.notifier).addCategoryBudget(
+                                  const CategoryBudget(categoryName: 'Bills', limitAmount: 7000.0),
+                                );
+                          },
+                        ),
+                        ActionChip(
+                          avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.primary),
+                          label: const Text('Shopping (₹4,000)'),
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+                          labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                          onPressed: () {
+                            ref.read(budgetControllerProvider.notifier).addCategoryBudget(
+                                  const CategoryBudget(categoryName: 'Shopping', limitAmount: 4000.0),
+                                );
+                          },
+                        ),
+                        ActionChip(
+                          avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.primary),
+                          label: const Text('Transport (₹3,000)'),
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+                          labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                          onPressed: () {
+                            ref.read(budgetControllerProvider.notifier).addCategoryBudget(
+                                  const CategoryBudget(categoryName: 'Transport', limitAmount: 3000.0),
+                                );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               )
             else

@@ -70,22 +70,13 @@ class BudgetController extends StateNotifier<BudgetState> {
 
     BudgetEntity? budget = _repository.getBudget(monthYear);
 
-    if (budget == null) {
-      budget = BudgetEntity(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        monthYear: monthYear,
-        totalLimit: 2500.0,
-        categoryBudgets: const [
-          CategoryBudget(categoryName: 'Food', limitAmount: 600.0),
-          CategoryBudget(categoryName: 'Shopping', limitAmount: 400.0),
-          CategoryBudget(categoryName: 'Transport', limitAmount: 300.0),
-          CategoryBudget(categoryName: 'Bills', limitAmount: 700.0),
-          CategoryBudget(categoryName: 'Entertainment', limitAmount: 350.0),
-        ],
-        createdAt: DateTime.now(),
-      );
-      _repository.saveBudget(budget);
-    }
+    budget ??= BudgetEntity(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      monthYear: monthYear,
+      totalLimit: 0.0,
+      categoryBudgets: const [],
+      createdAt: DateTime.now(),
+    );
 
     _calculateBudgetMetrics(budget);
   }
