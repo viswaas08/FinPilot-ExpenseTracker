@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -88,7 +89,10 @@ class AuthRepositoryImpl implements AuthRepository {
           email: email,
           password: password,
         );
-        final fbUser = credential.user!;
+        final fbUser = credential.user;
+        if (fbUser == null) {
+          throw const AuthFailure(message: 'User authentication failed: user profile is empty');
+        }
         final user = UserEntity(
           id: fbUser.uid,
           email: fbUser.email ?? email,
@@ -139,7 +143,10 @@ class AuthRepositoryImpl implements AuthRepository {
           email: email,
           password: password,
         );
-        final fbUser = credential.user!;
+        final fbUser = credential.user;
+        if (fbUser == null) {
+          throw const AuthFailure(message: 'User registration failed: user profile is empty');
+        }
         await fbUser.updateDisplayName(displayName);
         final user = UserEntity(
           id: fbUser.uid,
@@ -182,25 +189,37 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserEntity> signInWithGoogle() async {
     try {
       if (_firebaseService.isInitialized) {
-        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-        if (googleUser == null) {
-          throw const AuthFailure(message: 'Google Sign-In canceled by user');
+        fb.User? fbUser;
+
+        if (kIsWeb) {
+          final googleProvider = fb.GoogleAuthProvider();
+          final userCredential = await fb.FirebaseAuth.instance.signInWithPopup(googleProvider);
+          fbUser = userCredential.user;
+        } else {
+          final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+          if (googleUser == null) {
+            throw const AuthFailure(message: 'Google Sign-In canceled by user');
+          }
+
+          final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+          final fb.AuthCredential credential = fb.GoogleAuthProvider.credential(
+            accessToken: googleAuth.accessToken,
+            idToken: googleAuth.idToken,
+          );
+
+          final userCredential = await fb.FirebaseAuth.instance.signInWithCredential(credential);
+          fbUser = userCredential.user;
         }
 
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        final fb.AuthCredential credential = fb.GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-
-        final userCredential = await fb.FirebaseAuth.instance.signInWithCredential(credential);
-        final fbUser = userCredential.user!;
+        if (fbUser == null) {
+          throw const AuthFailure(message: 'Google Sign-In failed: user profile is empty');
+        }
 
         final user = UserEntity(
           id: fbUser.uid,
-          email: fbUser.email ?? googleUser.email,
-          displayName: fbUser.displayName ?? googleUser.displayName ?? 'Google User',
-          photoUrl: fbUser.photoURL ?? googleUser.photoUrl,
+          email: fbUser.email ?? 'google.user@expensetracker.app',
+          displayName: fbUser.displayName ?? 'Google User',
+          photoUrl: fbUser.photoURL,
           createdAt: DateTime.now(),
         );
 
