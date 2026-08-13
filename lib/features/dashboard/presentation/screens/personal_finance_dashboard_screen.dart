@@ -36,7 +36,7 @@ class _PersonalFinanceDashboardScreenState
     final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
     final netSavings = (expenseState.totalIncome - expenseState.totalExpense).clamp(0.0, double.infinity);
-    final totalLimit = budgetState.activeBudget?.totalLimit ?? 2500.0;
+    final totalLimit = budgetState.activeBudget?.totalLimit ?? 0.0;
     final savingsRate = expenseState.totalIncome > 0 ? ((netSavings / expenseState.totalIncome) * 100).clamp(0.0, 100.0) : 0.0;
 
     return LayoutBuilder(
@@ -160,7 +160,7 @@ class _PersonalFinanceDashboardScreenState
                         const SizedBox(height: 16),
                         TitaniumBudgetProgressCard(
                           spent: expenseState.totalExpense,
-                          budgetLimit: totalLimit > 0 ? totalLimit : 2500,
+                          budgetLimit: totalLimit,
                         ),
                       ],
                     ),
