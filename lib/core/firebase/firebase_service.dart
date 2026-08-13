@@ -16,14 +16,16 @@ class FirebaseService {
       );
       _isInitialized = true;
 
-      // Configure Firestore Settings for Offline Persistence
-      try {
-        FirebaseFirestore.instance.settings = const Settings(
-          persistenceEnabled: true,
-          cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-        );
-      } catch (e) {
-        debugPrint('Firestore settings already initialized or web platform: $e');
+      // Configure Firestore Settings for Mobile Offline Persistence
+      if (!kIsWeb) {
+        try {
+          FirebaseFirestore.instance.settings = const Settings(
+            persistenceEnabled: true,
+            cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+          );
+        } catch (e) {
+          debugPrint('Firestore settings already initialized: $e');
+        }
       }
 
       debugPrint('Firebase successfully initialized');
