@@ -131,7 +131,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       const SizedBox(height: 24),
                       if (authState.errorMessage != null)
-                        ErrorBanner(message: authState.errorMessage!),
+                        ErrorBanner(message: authState.errorMessage ?? 'An error occurred during registration.'),
 
                       // Google Social Login
                       GoogleSignInButton(

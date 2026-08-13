@@ -106,7 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 28),
                       if (authState.errorMessage != null)
-                        ErrorBanner(message: authState.errorMessage!),
+                        ErrorBanner(message: authState.errorMessage ?? 'An error occurred during authentication.'),
 
                       // Google Social Login Button
                       GoogleSignInButton(
