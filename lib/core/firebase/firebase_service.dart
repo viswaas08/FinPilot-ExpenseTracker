@@ -29,9 +29,9 @@ class FirebaseService {
       }
 
       debugPrint('Firebase successfully initialized');
-    } catch (e) {
+    } catch (e, stackTrace) {
       _isInitialized = false;
-      debugPrint('Firebase initialization skipped/failed: $e. Operating in offline/local mode.');
+      debugPrint('Firebase initialization skipped/failed: $e\n$stackTrace. Operating in offline/local mode.');
     }
   }
 }
