@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1003469021217:android:e71393983322f056a64360",
         "android_client_info": {
-          "package_name": "com.example.expense_tracker"
+          "package_name": "com.finpilot.expensetracker"
         }
       },
       "oauth_client": [
