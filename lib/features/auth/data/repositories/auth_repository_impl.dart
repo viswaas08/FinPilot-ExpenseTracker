@@ -196,7 +196,11 @@ class AuthRepositoryImpl implements AuthRepository {
           final userCredential = await fb.FirebaseAuth.instance.signInWithPopup(googleProvider);
           fbUser = userCredential.user;
         } else {
-          final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+          final GoogleSignIn googleSignIn = GoogleSignIn(
+            serverClientId: '1003469021217-u03c8jgqri0lfjp93rbs070m3f0nb445.apps.googleusercontent.com',
+            scopes: ['email', 'profile'],
+          );
+          final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
           if (googleUser == null) {
             throw const AuthFailure(message: 'Google Sign-In canceled by user');
           }
