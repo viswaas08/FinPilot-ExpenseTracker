@@ -18,7 +18,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.expense_tracker"
+    namespace = "com.finpilot.expensetracker"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -32,8 +32,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.expense_tracker"
-        minSdk = 23
+        applicationId = "com.finpilot.expensetracker"
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
