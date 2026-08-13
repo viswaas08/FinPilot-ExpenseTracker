@@ -1,18 +1,28 @@
-# 💎 FinPilot — Liquid Glass Personal Finance & Expense Tracker
+# 💎 FinPilot — Personal Finance & Expense Tracker
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.29.0-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.7.0-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
-[![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
+[![Firebase Hosting](https://img.shields.io/badge/Live%20Web%20App-Firebase%20Hosting-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://expense-tracker-f9567.web.app)
 [![License](https://img.shields.io/badge/License-MIT-blue.style=for-the-badge)](LICENSE)
 [![Build Status](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/viswaas08/FinPilot-ExpenseTracker/actions)
 
-> **FinPilot** is a commercial-grade, ultra-responsive Personal Finance & Expense Tracker built with Flutter. It features dynamic Liquid Glass aesthetics (iOS 26 design system), sub-second cold boot performance, 60–120 FPS hardware-accelerated animations, offline Hive encryption, Firebase OAuth authentication, and Google Gemini AI financial intelligence.
+> **FinPilot** is a commercial-grade, ultra-responsive Personal Finance & Expense Tracker built with Flutter. It features sub-second cold boot performance, 60–120 FPS hardware-accelerated animations, offline Hive encryption, Firebase OAuth authentication, and Google Gemini AI financial intelligence.
+
+---
+
+## 🌐 Live Web Application & Downloads
+
+Experience the live app or download the Android binaries directly:
+
+- 🌐 **Live Web Application (Primary Domain)**: [https://expense-tracker-f9567.web.app](https://expense-tracker-f9567.web.app)
+- ⚡ **Live Web Application (Secondary Domain)**: [https://expense-tracker-f9567.firebaseapp.com](https://expense-tracker-f9567.firebaseapp.com)
+- 📱 **Android Release APK & AAB**: [Download Latest Android Binaries](https://github.com/viswaas08/FinPilot-ExpenseTracker/releases)
 
 ---
 
 ## 🌟 Key Highlights & Features
 
-- **💎 Liquid Glass UI Architecture**: Frosted glass surfaces (`BackdropFilter` real-time blurring), depth-layered motion graphics, ambient glowing borders, and tactile touch scale compressions (`LiquidPressable`).
+- **💎 Modern UI Architecture**: Frosted surfaces, depth-layered motion graphics, ambient glowing borders, and tactile touch scale compressions (`LiquidPressable`).
 - **💱 Multi-Currency Engine (Default: ₹ INR)**: Full native support for **Indian Rupee (₹ / INR)** with real-time app-wide currency switching across 20+ world currencies (`$ USD`, `€ EUR`, `£ GBP`, `¥ JPY`, `AED`, etc.).
 - **🤖 Gemini AI Financial Intelligence Engine**: Real-time spending behavior analysis, automated transaction categorization, 30-day balance projections, and personalized savings recommendations.
 - **📊 Smart Budget & Limits Tracker**: Progress visualization, 50%/75%/90% alert threshold triggers, automatic monthly budget rollover calculations, and health score visualizers.
@@ -26,19 +36,12 @@
 
 ```mermaid
 graph TD
-    A[Presentation Layer<br/>Liquid Glass Widgets & Screens] --> B[State Management<br/>Riverpod Controllers & StateNotifiers]
+    A[Presentation Layer<br/>Widgets & Screens] --> B[State Management<br/>Riverpod Controllers & StateNotifiers]
     B --> C[Domain Layer<br/>Entities & Use Cases]
     C --> D[Data Layer<br/>Repository Implementations]
     D --> E[Local Persistence<br/>Hive AES Encrypted Boxes]
     D --> F[Cloud Integration<br/>Firebase Auth & Gemini AI Engine]
 ```
-
----
-
-## 📱 Releases & Binary Downloads
-
-Pre-built release binaries (APK & AAB) are automatically generated for every production build:
-- 📦 **[Download Latest APK Release](https://github.com/viswaas08/FinPilot-ExpenseTracker/releases)**
 
 ---
 
