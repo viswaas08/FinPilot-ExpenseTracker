@@ -2,9 +2,9 @@ name: Enterprise Production Release Pipeline
 
 on:
   push:
-    branches: [ main, release/* ]
+    branches: [ main, master, release/* ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
   analyze_and_test:
@@ -102,7 +102,7 @@ jobs:
   publish_release:
     name: 🚀 Publish Official GitHub Release & Packages
     needs: [build_android, build_web]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: write
