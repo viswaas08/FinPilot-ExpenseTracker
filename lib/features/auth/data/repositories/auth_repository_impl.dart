@@ -288,29 +288,38 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {
+    bool firebaseSuccess = false;
+    bool brevoSuccess = false;
+    String? lastError;
+
+    // 1. Try Firebase Auth Password Reset Email
     try {
       if (_firebaseService.isInitialized) {
-        await fb.FirebaseAuth.instance.sendPasswordResetEmail(
-          email: email,
-          actionCodeSettings: fb.ActionCodeSettings(
-            url: 'https://expense-tracker-f9567.web.app/reset-password',
-            handleCodeInApp: true,
-            androidPackageName: 'com.finpilot.expensetracker',
-            androidInstallApp: true,
-          ),
-        );
+        await fb.FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        firebaseSuccess = true;
       }
-      
-      // Dispatch custom HTML password reset email via Brevo API
-      await _brevoEmailService.sendPasswordResetEmail(
+    } on fb.FirebaseAuthException catch (e) {
+      lastError = e.message;
+      debugPrint('Firebase password reset error: ${e.code} - ${e.message}');
+    } catch (e) {
+      lastError = e.toString();
+    }
+
+    // 2. Try Brevo REST API Custom HTML Email
+    try {
+      brevoSuccess = await _brevoEmailService.sendPasswordResetEmail(
         recipientEmail: email,
         resetLink: 'https://expense-tracker-f9567.web.app/reset-password?email=$email',
         displayName: email.contains('@') ? email.split('@').first : 'Valued User',
       );
-    } on fb.FirebaseAuthException catch (e) {
-      throw AuthFailure(message: e.message ?? 'Failed to send password reset email', code: e.code);
     } catch (e) {
-      throw AuthFailure(message: e.toString());
+      debugPrint('Brevo email error: $e');
+    }
+
+    if (!firebaseSuccess && !brevoSuccess) {
+      throw AuthFailure(
+        message: lastError ?? 'Failed to send password reset email. Please verify your email address.',
+      );
     }
   }
 

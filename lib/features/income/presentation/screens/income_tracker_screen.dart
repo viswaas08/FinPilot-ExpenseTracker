@@ -186,8 +186,35 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
     final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
+    final canPop = Navigator.of(context).canPop();
+
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: canPop
+          ? AppBar(
+              backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: textColor),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              title: Text(
+                'Income Stream Tracker',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textColor, decoration: TextDecoration.none),
+              ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: IconButton(
+                    icon: const Icon(Icons.add_rounded, color: AppColors.success, size: 24),
+                    onPressed: _showAddIncomeDialog,
+                    tooltip: 'Add Income',
+                  ),
+                ),
+              ],
+            )
+          : null,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -195,39 +222,40 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Income Stream Tracker',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: textColor,
-                        decoration: TextDecoration.none,
+              if (!canPop)
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Income Stream Tracker',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: textColor,
+                          decoration: TextDecoration.none,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton.icon(
-                    onPressed: _showAddIncomeDialog,
-                    icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-                    label: const Text(
-                      'Add Income',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white, decoration: TextDecoration.none),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: _showAddIncomeDialog,
+                      icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                      label: const Text(
+                        'Add Income',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white, decoration: TextDecoration.none),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.success,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        elevation: 0,
+                      ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.success,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      elevation: 0,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+                  ],
+                ),
+              if (!canPop) const SizedBox(height: 16),
 
               // Hero Summary Card
               Container(
