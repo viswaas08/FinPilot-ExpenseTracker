@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
-import 'package:expense_tracker/core/theme/app_typography.dart';
 import 'package:expense_tracker/core/presentation/widgets/titanium_transaction_tile.dart';
 import 'package:expense_tracker/core/design_system/quantum_tokens.dart';
 import 'package:expense_tracker/core/design_system/quantum_button.dart';
@@ -184,213 +183,160 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
     final incomeList = ref.watch(incomeControllerProvider);
     final totalIncome = incomeList.fold<double>(0.0, (sum, item) => sum + item.amount);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppColors.primaryText : AppColors.lightTextPrimary;
+    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  'Income Stream Tracker',
-                  style: AppTypography.screenTitle.copyWith(color: textColor, fontSize: 20),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: _showAddIncomeDialog,
-                icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-                label: const Text(
-                  'Add Income',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  elevation: 0,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Hero Summary Card
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surface : Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.success.withValues(alpha: 0.3), width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'TOTAL MONTHLY INCOME',
-                  style: AppTypography.caption.copyWith(color: AppColors.secondaryText, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 6),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    CurrencyFormatter.format(totalIncome),
-                    style: AppTypography.financialValue.copyWith(color: AppColors.success, fontSize: 32),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Tracked across ${incomeList.length} active income source(s).',
-                  style: AppTypography.caption.copyWith(color: isDark ? AppColors.mutedText : AppColors.lightTextSecondary),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          Text(
-            'Income Sources',
-            style: AppTypography.sectionTitle.copyWith(color: textColor, fontSize: 18),
-          ),
-          const SizedBox(height: 14),
-
-          if (incomeList.isEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.surface : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
-              ),
-              child: Column(
+              Row(
                 children: [
-                  Text(
-                    'No income streams recorded yet.',
-                    style: AppTypography.body.copyWith(color: isDark ? AppColors.mutedText : AppColors.lightTextSecondary),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Quick Add Suggestions:',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.success,
-                      letterSpacing: 0.5,
+                  Expanded(
+                    child: Text(
+                      'Income Stream Tracker',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                        decoration: TextDecoration.none,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      ActionChip(
-                        avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.success),
-                        label: const Text('Primary Salary (₹1,00,000)'),
-                        backgroundColor: AppColors.success.withValues(alpha: 0.1),
-                        side: BorderSide(color: AppColors.success.withValues(alpha: 0.3)),
-                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
-                        onPressed: () {
-                          ref.read(incomeControllerProvider.notifier).addIncome(
-                                IncomeEntity(
-                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                                  source: 'Primary Salary',
-                                  amount: 100000.0,
-                                  date: DateTime.now(),
-                                  category: 'Salary',
-                                  isRecurring: true,
-                                ),
-                              );
-                        },
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.success),
-                        label: const Text('Freelance Project (₹25,000)'),
-                        backgroundColor: AppColors.success.withValues(alpha: 0.1),
-                        side: BorderSide(color: AppColors.success.withValues(alpha: 0.3)),
-                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
-                        onPressed: () {
-                          ref.read(incomeControllerProvider.notifier).addIncome(
-                                IncomeEntity(
-                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                                  source: 'Freelance Project',
-                                  amount: 25000.0,
-                                  date: DateTime.now(),
-                                  category: 'Freelance',
-                                ),
-                              );
-                        },
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.add_rounded, size: 14, color: AppColors.success),
-                        label: const Text('Investments & Dividends (₹15,000)'),
-                        backgroundColor: AppColors.success.withValues(alpha: 0.1),
-                        side: BorderSide(color: AppColors.success.withValues(alpha: 0.3)),
-                        labelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
-                        onPressed: () {
-                          ref.read(incomeControllerProvider.notifier).addIncome(
-                                IncomeEntity(
-                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                                  source: 'Stock Dividends',
-                                  amount: 15000.0,
-                                  date: DateTime.now(),
-                                  category: 'Investments',
-                                ),
-                              );
-                        },
-                      ),
-                    ],
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: _showAddIncomeDialog,
+                    icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                    label: const Text(
+                      'Add Income',
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white, decoration: TextDecoration.none),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.success,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
+                    ),
                   ),
                 ],
               ),
-            )
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: incomeList.length,
-              itemBuilder: (context, index) {
-                final item = incomeList[index];
-                return Dismissible(
-                  key: Key(item.id),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (_) => ref.read(incomeControllerProvider.notifier).deleteIncome(item.id),
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
+              const SizedBox(height: 16),
+
+              // Hero Summary Card
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: AppColors.success.withValues(alpha: 0.3), width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                    child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'TOTAL MONTHLY INCOME',
+                      style: TextStyle(color: subTextColor, fontWeight: FontWeight.w700, fontSize: 11, letterSpacing: 0.8, decoration: TextDecoration.none),
+                    ),
+                    const SizedBox(height: 6),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        CurrencyFormatter.format(totalIncome),
+                        style: const TextStyle(color: AppColors.success, fontSize: 32, fontWeight: FontWeight.w900, decoration: TextDecoration.none),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Tracked across ${incomeList.length} active income source(s).',
+                      style: TextStyle(color: subTextColor, fontSize: 12, decoration: TextDecoration.none),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              Text(
+                'Income Sources',
+                style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.w800, decoration: TextDecoration.none),
+              ),
+              const SizedBox(height: 14),
+
+              if (incomeList.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: isDark ? const Color(0xFF334155) : AppColors.lightBorder),
                   ),
-                  child: TitaniumTransactionTile(
-                    title: item.source,
-                    category: item.category,
-                    dateText: '${item.date.day}/${item.date.month}/${item.date.year}',
-                    amount: item.amount,
-                    isIncome: true,
-                    icon: Icons.arrow_downward_rounded,
-                    iconColor: AppColors.success,
+                  child: Column(
+                    children: [
+                      Icon(Icons.account_balance_wallet_outlined, size: 40, color: subTextColor.withValues(alpha: 0.5)),
+                      const SizedBox(height: 12),
+                      Text(
+                        'No income streams recorded yet.',
+                        style: TextStyle(color: textColor, fontSize: 14, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Tap "Add Income" above to record your salary, freelance earnings, or investments.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: subTextColor, fontSize: 12, decoration: TextDecoration.none),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
-          const SizedBox(height: 80),
-        ],
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: incomeList.length,
+                  itemBuilder: (context, index) {
+                    final item = incomeList[index];
+                    return Dismissible(
+                      key: Key(item.id),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (_) => ref.read(incomeControllerProvider.notifier).deleteIncome(item.id),
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+                      ),
+                      child: TitaniumTransactionTile(
+                        title: item.source,
+                        category: item.category,
+                        dateText: '${item.date.day}/${item.date.month}/${item.date.year}',
+                        amount: item.amount,
+                        isIncome: true,
+                        icon: Icons.arrow_downward_rounded,
+                        iconColor: AppColors.success,
+                      ),
+                    );
+                  },
+                ),
+              const SizedBox(height: 80),
+            ],
+          ),
+        ),
       ),
     );
   }

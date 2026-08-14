@@ -4,7 +4,6 @@ import 'package:expense_tracker/core/theme/app_colors.dart';
 import 'package:expense_tracker/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_tracker/features/budget/presentation/controllers/budget_controller.dart';
 import 'package:expense_tracker/features/budget/presentation/screens/budget_form_screen.dart';
-import 'package:expense_tracker/features/budget/presentation/widgets/budget_health_score_card.dart';
 import 'package:expense_tracker/features/budget/presentation/widgets/budget_quick_actions_row.dart';
 import 'package:expense_tracker/features/budget/presentation/widgets/category_budget_progress_card.dart';
 import 'package:expense_tracker/features/budget/presentation/widgets/monthly_budget_hero_card.dart';
@@ -83,12 +82,7 @@ class BudgetDashboardScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Budget Health Score Hero Card
-            BudgetHealthScoreCard(
-              healthScore: state.healthScore,
-              healthLabel: state.healthLabel,
-            ),
-            const SizedBox(height: 18),
+
 
             // 2. Active Alert Banner (If crossed thresholds)
             if (state.activeAlertMessage != null && state.alertSeverity != null) ...[
