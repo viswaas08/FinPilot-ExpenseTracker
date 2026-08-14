@@ -1,5 +1,3 @@
-import 'dart:ui';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'radius.dart';
@@ -35,70 +33,64 @@ class QuantumDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget dialogContainer = Container(
-      constraints: const BoxConstraints(maxWidth: 500),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: QuantumColors.surface.withValues(alpha: 0.95),
-        borderRadius: QuantumRadius.borderXl,
-        border: Border.all(
-          color: QuantumColors.primaryAccent.withValues(alpha: 0.35),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: QuantumColors.primaryAccent.withValues(alpha: 0.2),
-            blurRadius: 36,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: QuantumColors.primaryText,
-                  letterSpacing: -0.4,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close_rounded, color: QuantumColors.mutedText, size: 20),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Flexible(child: child),
-          if (actions != null && actions!.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: actions!,
-            ),
-          ],
-        ],
-      ),
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final textColor = isDark ? QuantumColors.primaryText : const Color(0xFF0F172A);
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: ClipRRect(
-        borderRadius: QuantumRadius.borderXl,
-        child: kIsWeb
-            ? dialogContainer
-            : BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                child: dialogContainer,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 500),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: QuantumRadius.borderXl,
+          border: Border.all(color: borderColor, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: textColor,
+                    letterSpacing: -0.3,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close_rounded, color: isDark ? QuantumColors.mutedText : Colors.grey.shade600, size: 20),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Flexible(child: child),
+            if (actions != null && actions!.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: actions!,
               ),
+            ],
+          ],
+        ),
       ),
     );
   }

@@ -100,6 +100,7 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
       title: 'Add Income Source',
       child: StatefulBuilder(
         builder: (context, setDialogState) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,12 +135,16 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
                     onSelected: (val) {
                       if (val) setDialogState(() => selectedCategory = cat);
                     },
-                    selectedColor: QuantumColors.green,
-                    backgroundColor: QuantumColors.glassSurface,
+                    selectedColor: AppColors.success.withValues(alpha: 0.2),
+                    backgroundColor: isDark ? const Color(0xFF0F172A) : AppColors.lightSurfaceVariant,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : QuantumColors.primaryText,
+                      color: isSelected ? AppColors.success : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.none,
+                    ),
+                    side: BorderSide(
+                      color: isSelected ? AppColors.success : (isDark ? const Color(0xFF334155) : AppColors.lightBorder),
                     ),
                   );
                 }).toList(),
