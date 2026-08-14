@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:expense_tracker/core/errors/failures.dart';
 import 'package:expense_tracker/core/firebase/firebase_service.dart';
+import 'package:expense_tracker/core/services/brevo_email_service.dart';
 import 'package:expense_tracker/core/storage/hive_service.dart';
 import 'package:expense_tracker/features/auth/domain/entities/user_entity.dart';
 import 'package:expense_tracker/features/auth/domain/repositories/auth_repository.dart';
@@ -13,6 +14,7 @@ import 'package:expense_tracker/features/auth/data/models/user_model.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseService _firebaseService;
   final HiveService _hiveService;
+  final BrevoEmailService _brevoEmailService;
   final StreamController<UserEntity?> _authStateController = StreamController<UserEntity?>.broadcast();
 
   UserEntity? _cachedUser;
@@ -21,8 +23,10 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required FirebaseService firebaseService,
     required HiveService hiveService,
+    required BrevoEmailService brevoEmailService,
   })  : _firebaseService = firebaseService,
-        _hiveService = hiveService {
+        _hiveService = hiveService,
+        _brevoEmailService = brevoEmailService {
     _initSession();
   }
 
@@ -125,6 +129,12 @@ class AuthRepositoryImpl implements AuthRepository {
         return user;
       }
     } on fb.FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        throw const AuthFailure(
+          message: 'Invalid email or password. If you signed up using Google, please tap "Continue with Google" or use "Forgot Password" to set a password.',
+          code: 'invalid-credential',
+        );
+      }
       throw AuthFailure(message: e.message ?? 'Authentication failed', code: e.code);
     } catch (e) {
       throw AuthFailure(message: e.toString());
@@ -179,6 +189,12 @@ class AuthRepositoryImpl implements AuthRepository {
         return user;
       }
     } on fb.FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use' || e.code == 'account-exists-with-different-credential') {
+        throw const AuthFailure(
+          message: 'An account already exists with this email address. Try signing in with "Continue with Google" or use "Forgot Password".',
+          code: 'email-already-in-use',
+        );
+      }
       throw AuthFailure(message: e.message ?? 'Registration failed', code: e.code);
     } catch (e) {
       throw AuthFailure(message: e.toString());
@@ -262,8 +278,23 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       if (_firebaseService.isInitialized) {
-        await fb.FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        await fb.FirebaseAuth.instance.sendPasswordResetEmail(
+          email: email,
+          actionCodeSettings: fb.ActionCodeSettings(
+            url: 'https://expense-tracker-f9567.web.app/reset-password',
+            handleCodeInApp: true,
+            androidPackageName: 'com.finpilot.expensetracker',
+            androidInstallApp: true,
+          ),
+        );
       }
+      
+      // Dispatch custom HTML password reset email via Brevo API
+      await _brevoEmailService.sendPasswordResetEmail(
+        recipientEmail: email,
+        resetLink: 'https://expense-tracker-f9567.web.app/reset-password?email=$email',
+        displayName: email.contains('@') ? email.split('@').first : 'Valued User',
+      );
     } on fb.FirebaseAuthException catch (e) {
       throw AuthFailure(message: e.message ?? 'Failed to send password reset email', code: e.code);
     } catch (e) {
@@ -288,8 +319,10 @@ class AuthRepositoryImpl implements AuthRepository {
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final firebaseService = ref.watch(firebaseServiceProvider);
   final hiveService = ref.watch(hiveServiceProvider);
+  final brevoService = ref.watch(brevoEmailServiceProvider);
   return AuthRepositoryImpl(
     firebaseService: firebaseService,
     hiveService: hiveService,
+    brevoEmailService: brevoService,
   );
 });

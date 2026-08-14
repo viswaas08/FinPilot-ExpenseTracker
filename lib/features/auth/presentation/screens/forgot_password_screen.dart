@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,17 +21,45 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 
+  Timer? _cooldownTimer;
+  int _cooldownSeconds = 0;
+
   @override
   void dispose() {
+    _cooldownTimer?.cancel();
     _emailController.dispose();
     super.dispose();
   }
 
+  void _startCooldown([int seconds = 60]) {
+    setState(() {
+      _cooldownSeconds = seconds;
+    });
+    _cooldownTimer?.cancel();
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (_cooldownSeconds > 1) {
+        setState(() {
+          _cooldownSeconds--;
+        });
+      } else {
+        timer.cancel();
+        setState(() {
+          _cooldownSeconds = 0;
+        });
+      }
+    });
+  }
+
   void _handleReset() async {
+    if (_cooldownSeconds > 0) return;
     if (_formKey.currentState?.validate() ?? false) {
-      await ref.read(authControllerProvider.notifier).sendPasswordResetEmail(
+      final success = await ref.read(authControllerProvider.notifier).sendPasswordResetEmail(
             _emailController.text.trim(),
           );
+      if (success && mounted) {
+        _startCooldown(60);
+      }
     }
   }
 
@@ -105,20 +134,36 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: AppColors.income.withValues(alpha: 0.3)),
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.check_circle_outline, color: AppColors.income, size: 22),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  authState.successMessage!,
-                                  style: const TextStyle(
-                                    color: AppColors.income,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
+                              Row(
+                                children: [
+                                  const Icon(Icons.check_circle_outline, color: AppColors.income, size: 22),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      authState.successMessage!,
+                                      style: const TextStyle(
+                                        color: AppColors.income,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (_cooldownSeconds > 0) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Please wait ${_cooldownSeconds}s before requesting another email.',
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                         ),
@@ -146,9 +191,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                             ),
                             const SizedBox(height: 28),
                             PrimaryButton(
-                              label: 'Send Recovery Email',
+                              label: _cooldownSeconds > 0
+                                  ? 'Resend Email in ${_cooldownSeconds}s'
+                                  : 'Send Recovery Email',
                               isLoading: authState.isLoading,
-                              onPressed: _handleReset,
+                              onPressed: _cooldownSeconds > 0 ? null : _handleReset,
                             ),
                           ],
                         ),
@@ -175,3 +222,4 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     );
   }
 }
+
