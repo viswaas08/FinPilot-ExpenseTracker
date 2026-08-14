@@ -216,6 +216,11 @@ class AuthRepositoryImpl implements AuthRepository {
             serverClientId: '1003469021217-u03c8jgqri0lfjp93rbs070m3f0nb445.apps.googleusercontent.com',
             scopes: ['email', 'profile'],
           );
+
+          try {
+            await googleSignIn.signOut();
+          } catch (_) {}
+
           final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
           if (googleUser == null) {
             throw const AuthFailure(message: 'Google Sign-In canceled by user');
@@ -270,7 +275,14 @@ class AuthRepositoryImpl implements AuthRepository {
         return user;
       }
     } catch (e) {
-      throw AuthFailure(message: e.toString().replaceAll('AuthFailure(message: ', '').replaceAll(')', ''));
+      final errStr = e.toString();
+      if (errStr.contains('10') || errStr.contains('sign_in_failed') || errStr.contains('API key')) {
+        throw const AuthFailure(
+          message: 'Google Sign-In failed on Android (ApiException 10). Step to fix:\n1. Open Firebase Console -> Project Settings -> Android App (com.finpilot.expensetracker).\n2. Add your SHA-1 fingerprint (run `cd android && gradlew signingReport` to get it).\n3. Re-download google-services.json.',
+          code: 'google-sha1-missing',
+        );
+      }
+      throw AuthFailure(message: errStr.replaceAll('AuthFailure(message: ', '').replaceAll(')', ''));
     }
   }
 
