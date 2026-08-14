@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.finpilot.expensetracker"
+        applicationId = "com.example.expense_tracker"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

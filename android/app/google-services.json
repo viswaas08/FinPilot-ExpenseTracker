@@ -9,51 +9,6 @@
       "client_info": {
         "mobilesdk_app_id": "1:1003469021217:android:e71393983322f056a64360",
         "android_client_info": {
-          "package_name": "com.finpilot.expensetracker"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "1003469021217-1acek8np2b22v74a87m5cfeh4cv7ikvt.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.finpilot.expensetracker",
-            "certificate_hash": "73256474386862adf632891ce116faed01ebeb72"
-          }
-        },
-        {
-          "client_id": "1003469021217-l6sd16u5p8hec1qj66k3ufpn5fpdrrap.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.finpilot.expensetracker",
-            "certificate_hash": "7dc1aca75c5fa234550c2515ac5b298848733a0f"
-          }
-        },
-        {
-          "client_id": "1003469021217-u03c8jgqri0lfjp93rbs070m3f0nb445.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBUvTmBEEiWpoFnTYSXcV5y3R0Q437S_70"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1003469021217-u03c8jgqri0lfjp93rbs070m3f0nb445.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:1003469021217:android:e71393983322f056a64360",
-        "android_client_info": {
           "package_name": "com.example.expense_tracker"
         }
       },
