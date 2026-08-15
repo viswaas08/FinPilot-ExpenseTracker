@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:expense_tracker/features/expenses/domain/entities/category_entity.dart';
@@ -98,15 +99,15 @@ class ExpenseController extends StateNotifier<ExpenseState> {
     _streamSubscription?.cancel();
     _streamSubscription = _repository.watchExpenses().listen(
       (list) {
-        if (list.isNotEmpty) {
-          state = state.copyWith(
-            expenses: list,
-            filteredExpenses: _applyFilter(list, state.filter),
-            isLoading: false,
-          );
-        }
+        state = state.copyWith(
+          expenses: list,
+          filteredExpenses: _applyFilter(list, state.filter),
+          isLoading: false,
+        );
       },
-      onError: (_) {},
+      onError: (e) {
+        debugPrint('Realtime sync stream error: $e');
+      },
     );
   }
 

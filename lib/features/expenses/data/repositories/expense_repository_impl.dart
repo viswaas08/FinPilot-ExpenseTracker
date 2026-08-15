@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/core/firebase/firebase_service.dart';
 import 'package:expense_tracker/core/storage/hive_service.dart';
@@ -64,28 +65,37 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
 
   @override
   Future<void> addExpense(ExpenseEntity expense) async {
-    final model = ExpenseModel.fromEntity(expense);
+    final targetUser = _resolveUserId(expense.userId);
+    final model = ExpenseModel.fromEntity(expense.copyWith(userId: targetUser));
     await _localDataSource.saveExpense(model);
     try {
       await _remoteDataSource.addExpense(model);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Remote addExpense failed: $e');
+    }
   }
 
   @override
   Future<void> updateExpense(ExpenseEntity expense) async {
-    final model = ExpenseModel.fromEntity(expense);
+    final targetUser = _resolveUserId(expense.userId);
+    final model = ExpenseModel.fromEntity(expense.copyWith(userId: targetUser));
     await _localDataSource.saveExpense(model);
     try {
       await _remoteDataSource.updateExpense(model);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Remote updateExpense failed: $e');
+    }
   }
 
   @override
   Future<void> deleteExpense(String id) async {
     await _localDataSource.deleteExpense(id);
     try {
-      await _remoteDataSource.deleteExpense(id);
-    } catch (_) {}
+      final targetUser = _resolveUserId('current_user');
+      await _remoteDataSource.deleteExpense(targetUser, id);
+    } catch (e) {
+      debugPrint('Remote deleteExpense failed: $e');
+    }
   }
 }
 
@@ -96,7 +106,8 @@ final expenseLocalDatasourceProvider = Provider<ExpenseLocalDatasource>((ref) {
 
 final expenseRemoteDatasourceProvider = Provider<ExpenseRemoteDatasource>((ref) {
   final firebaseService = ref.watch(firebaseServiceProvider);
-  return ExpenseRemoteDatasource(firebaseService);
+  final hiveService = ref.watch(hiveServiceProvider);
+  return ExpenseRemoteDatasource(firebaseService, hiveService);
 });
 
 final expenseRepositoryProvider = Provider<ExpenseRepository>((ref) {
