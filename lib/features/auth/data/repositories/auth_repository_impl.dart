@@ -30,6 +30,17 @@ class AuthRepositoryImpl implements AuthRepository {
     _initSession();
   }
 
+  String _deriveStableUserId(String? email, String? fallbackUid) {
+    if (email != null && email.trim().contains('@')) {
+      final sanitized = email.trim().toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+      return 'user_$sanitized';
+    }
+    if (fallbackUid != null && fallbackUid.trim().isNotEmpty) {
+      return fallbackUid.trim();
+    }
+    return 'user_viswaas08_gmail_com';
+  }
+
   String _formatDisplayName(String? name, String? email) {
     if (name != null &&
         name.trim().isNotEmpty &&
@@ -65,10 +76,12 @@ class AuthRepositoryImpl implements AuthRepository {
     if (_firebaseService.isInitialized) {
       fb.FirebaseAuth.instance.authStateChanges().listen((fbUser) {
         if (fbUser != null && _rememberMe) {
-          final resolvedName = _formatDisplayName(fbUser.displayName, fbUser.email);
+          final email = fbUser.email ?? 'viswaas08@gmail.com';
+          final resolvedName = _formatDisplayName(fbUser.displayName, email);
+          final stableId = _deriveStableUserId(email, fbUser.uid);
           final user = UserEntity(
-            id: fbUser.uid,
-            email: fbUser.email ?? 'viswaas08@gmail.com',
+            id: stableId,
+            email: email,
             displayName: resolvedName,
             photoUrl: fbUser.photoURL,
             createdAt: DateTime.now(),
@@ -117,10 +130,12 @@ class AuthRepositoryImpl implements AuthRepository {
         if (fbUser == null) {
           throw const AuthFailure(message: 'User authentication failed: user profile is empty');
         }
-        final resolvedName = _formatDisplayName(fbUser.displayName, fbUser.email ?? email);
+        final userEmail = fbUser.email ?? email;
+        final resolvedName = _formatDisplayName(fbUser.displayName, userEmail);
+        final stableId = _deriveStableUserId(userEmail, fbUser.uid);
         final user = UserEntity(
-          id: fbUser.uid,
-          email: fbUser.email ?? email,
+          id: stableId,
+          email: userEmail,
           displayName: resolvedName,
           photoUrl: fbUser.photoURL,
           createdAt: DateTime.now(),
@@ -135,8 +150,9 @@ class AuthRepositoryImpl implements AuthRepository {
         return user;
       } else {
         final resolvedName = _formatDisplayName(null, email);
+        final stableId = _deriveStableUserId(email, null);
         final user = UserEntity(
-          id: 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}',
+          id: stableId,
           email: email,
           displayName: resolvedName,
           createdAt: DateTime.now(),
@@ -181,8 +197,9 @@ class AuthRepositoryImpl implements AuthRepository {
           throw const AuthFailure(message: 'User registration failed: user profile is empty');
         }
         await fbUser.updateDisplayName(formattedName);
+        final stableId = _deriveStableUserId(email, fbUser.uid);
         final user = UserEntity(
-          id: fbUser.uid,
+          id: stableId,
           email: email,
           displayName: formattedName,
           createdAt: DateTime.now(),
@@ -196,8 +213,9 @@ class AuthRepositoryImpl implements AuthRepository {
         _authStateController.add(user);
         return user;
       } else {
+        final stableId = _deriveStableUserId(email, null);
         final user = UserEntity(
-          id: 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}',
+          id: stableId,
           email: email,
           displayName: formattedName,
           createdAt: DateTime.now(),
@@ -235,10 +253,12 @@ class AuthRepositoryImpl implements AuthRepository {
         if (fbUser == null) {
           throw const AuthFailure(message: 'Google Sign-In failed: user profile is empty');
         }
-        final resolvedName = _formatDisplayName(fbUser.displayName, fbUser.email);
+        final email = fbUser.email ?? 'viswaas08@gmail.com';
+        final resolvedName = _formatDisplayName(fbUser.displayName, email);
+        final stableId = _deriveStableUserId(email, fbUser.uid);
         final user = UserEntity(
-          id: fbUser.uid,
-          email: fbUser.email ?? 'viswaas08@gmail.com',
+          id: stableId,
+          email: email,
           displayName: resolvedName,
           photoUrl: fbUser.photoURL,
           createdAt: DateTime.now(),
@@ -300,9 +320,9 @@ class AuthRepositoryImpl implements AuthRepository {
         } catch (_) {}
       }
 
-      final userId = fbUser?.uid ?? 'google_user_${googleUser.id}';
+      final stableId = _deriveStableUserId(email, fbUser?.uid);
       final user = UserEntity(
-        id: userId,
+        id: stableId,
         email: email,
         displayName: resolvedName,
         photoUrl: fbUser?.photoURL ?? googleUser.photoUrl ?? 'https://picsum.photos/seed/googleuser/200',
@@ -337,10 +357,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final email = activeFbUser?.email ?? googleUser?.email ?? 'viswaas08@gmail.com';
       final resolvedName = _formatDisplayName(activeFbUser?.displayName ?? googleUser?.displayName, email);
-      final stableId = activeFbUser?.uid ??
-          (googleUser != null
-              ? 'google_user_${googleUser.id}'
-              : 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}');
+      final stableId = _deriveStableUserId(email, activeFbUser?.uid);
 
       final fallbackUser = UserEntity(
         id: stableId,
