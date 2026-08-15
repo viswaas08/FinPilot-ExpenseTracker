@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'glass_container.dart';
 
 abstract class GlassDialog {
   static Future<T?> show<T>({

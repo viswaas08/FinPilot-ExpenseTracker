@@ -1,5 +1,3 @@
-import 'dart:ui';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/core/motion/liquid_motion_system.dart';
 
@@ -23,7 +21,6 @@ class LiquidGlassPageTransition extends StatelessWidget {
     return AnimatedBuilder(
       animation: curved,
       builder: (context, childWidget) {
-        final blurValue = (1.0 - curved.value) * 8.0;
         final slideY = (1.0 - curved.value) * 24.0;
         final scaleValue = 0.96 + (curved.value * 0.04);
 

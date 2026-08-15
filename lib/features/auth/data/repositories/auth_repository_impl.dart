@@ -228,70 +228,19 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserEntity> signInWithGoogle() async {
     GoogleSignInAccount? googleUser;
     try {
-      if (_firebaseService.isInitialized) {
-        fb.User? fbUser;
-
-        if (kIsWeb) {
-          final googleProvider = fb.GoogleAuthProvider();
-          final userCredential = await fb.FirebaseAuth.instance.signInWithPopup(googleProvider);
-          fbUser = userCredential.user;
-        } else {
-          final GoogleSignIn googleSignIn = GoogleSignIn(
-            serverClientId: '1003469021217-u03c8jgqri0lfjp93rbs070m3f0nb445.apps.googleusercontent.com',
-            scopes: ['email', 'profile'],
-          );
-
-          try {
-            await googleSignIn.signOut();
-          } catch (_) {}
-
-          googleUser = await googleSignIn.signIn();
-          if (googleUser == null) {
-            throw const AuthFailure(message: 'Google Sign-In canceled by user');
-          }
-
-          final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-          final fb.AuthCredential credential = fb.GoogleAuthProvider.credential(
-            accessToken: googleAuth.accessToken,
-            idToken: googleAuth.idToken,
-          );
-
-          final userCredential = await fb.FirebaseAuth.instance.signInWithCredential(credential);
-          fbUser = userCredential.user;
-        }
-
+      if (kIsWeb) {
+        final googleProvider = fb.GoogleAuthProvider();
+        final userCredential = await fb.FirebaseAuth.instance.signInWithPopup(googleProvider);
+        final fbUser = userCredential.user;
         if (fbUser == null) {
           throw const AuthFailure(message: 'Google Sign-In failed: user profile is empty');
         }
-
-        final resolvedName = _formatDisplayName(fbUser.displayName ?? googleUser?.displayName, fbUser.email ?? googleUser?.email);
-
+        final resolvedName = _formatDisplayName(fbUser.displayName, fbUser.email);
         final user = UserEntity(
           id: fbUser.uid,
-          email: fbUser.email ?? googleUser?.email ?? 'viswaas08@gmail.com',
+          email: fbUser.email ?? 'viswaas08@gmail.com',
           displayName: resolvedName,
-          photoUrl: fbUser.photoURL ?? googleUser?.photoUrl,
-          createdAt: DateTime.now(),
-        );
-
-        _cachedUser = user;
-        if (_rememberMe) {
-          final json = UserModel.fromEntity(user).toJson();
-          json['rememberMe'] = true;
-          await _hiveService.saveUserSession(json);
-        }
-        _authStateController.add(user);
-        return user;
-      } else {
-        final email = googleUser?.email ?? 'viswaas08@gmail.com';
-        final resolvedName = _formatDisplayName(googleUser?.displayName, email);
-        final stableId = googleUser != null ? 'google_user_${googleUser.id}' : 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}';
-
-        final user = UserEntity(
-          id: stableId,
-          email: email,
-          displayName: resolvedName,
-          photoUrl: googleUser?.photoUrl ?? 'https://picsum.photos/seed/googleuser/200',
+          photoUrl: fbUser.photoURL,
           createdAt: DateTime.now(),
         );
         _cachedUser = user;
@@ -303,6 +252,71 @@ class AuthRepositoryImpl implements AuthRepository {
         _authStateController.add(user);
         return user;
       }
+
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+
+      try {
+        await googleSignIn.signOut();
+      } catch (_) {}
+
+      googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw const AuthFailure(message: 'Google Sign-In canceled by user');
+      }
+
+      fb.User? fbUser;
+      if (_firebaseService.isInitialized) {
+        try {
+          final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+          final fb.AuthCredential credential = fb.GoogleAuthProvider.credential(
+            accessToken: googleAuth.accessToken,
+            idToken: googleAuth.idToken,
+          );
+          final userCredential = await fb.FirebaseAuth.instance.signInWithCredential(credential);
+          fbUser = userCredential.user;
+        } catch (e) {
+          debugPrint('Firebase signInWithCredential failed: $e');
+        }
+
+        if (fbUser == null && fb.FirebaseAuth.instance.currentUser == null) {
+          try {
+            final anonCred = await fb.FirebaseAuth.instance.signInAnonymously();
+            fbUser = anonCred.user;
+          } catch (e) {
+            debugPrint('Firebase signInAnonymously fallback error: $e');
+          }
+        } else {
+          fbUser ??= fb.FirebaseAuth.instance.currentUser;
+        }
+      }
+
+      final email = fbUser?.email ?? googleUser.email;
+      final resolvedName = _formatDisplayName(fbUser?.displayName ?? googleUser.displayName, email);
+      if (fbUser != null && fbUser.displayName != resolvedName) {
+        try {
+          await fbUser.updateDisplayName(resolvedName);
+        } catch (_) {}
+      }
+
+      final userId = fbUser?.uid ?? 'google_user_${googleUser.id}';
+      final user = UserEntity(
+        id: userId,
+        email: email,
+        displayName: resolvedName,
+        photoUrl: fbUser?.photoURL ?? googleUser.photoUrl ?? 'https://picsum.photos/seed/googleuser/200',
+        createdAt: DateTime.now(),
+      );
+
+      _cachedUser = user;
+      if (_rememberMe) {
+        final json = UserModel.fromEntity(user).toJson();
+        json['rememberMe'] = true;
+        await _hiveService.saveUserSession(json);
+      }
+      _authStateController.add(user);
+      return user;
     } catch (e) {
       final errStr = e.toString();
       debugPrint('Google Sign-In Exception: $errStr');
@@ -311,17 +325,28 @@ class AuthRepositoryImpl implements AuthRepository {
         throw const AuthFailure(message: 'Google Sign-In canceled');
       }
 
-      final email = googleUser?.email ?? 'viswaas08@gmail.com';
-      final resolvedName = _formatDisplayName(googleUser?.displayName, email);
-      final stableId = googleUser != null
-          ? 'google_user_${googleUser.id}'
-          : 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}';
+      fb.User? activeFbUser;
+      if (_firebaseService.isInitialized && fb.FirebaseAuth.instance.currentUser == null) {
+        try {
+          final anonCred = await fb.FirebaseAuth.instance.signInAnonymously();
+          activeFbUser = anonCred.user;
+        } catch (_) {}
+      } else if (_firebaseService.isInitialized) {
+        activeFbUser = fb.FirebaseAuth.instance.currentUser;
+      }
+
+      final email = activeFbUser?.email ?? googleUser?.email ?? 'viswaas08@gmail.com';
+      final resolvedName = _formatDisplayName(activeFbUser?.displayName ?? googleUser?.displayName, email);
+      final stableId = activeFbUser?.uid ??
+          (googleUser != null
+              ? 'google_user_${googleUser.id}'
+              : 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}');
 
       final fallbackUser = UserEntity(
         id: stableId,
         email: email,
         displayName: resolvedName,
-        photoUrl: googleUser?.photoUrl ?? 'https://picsum.photos/seed/googleuser/200',
+        photoUrl: activeFbUser?.photoURL ?? googleUser?.photoUrl ?? 'https://picsum.photos/seed/googleuser/200',
         createdAt: DateTime.now(),
       );
 

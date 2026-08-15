@@ -8,6 +8,8 @@ import 'package:expense_tracker/core/design_system/quantum_dialog.dart';
 import 'package:expense_tracker/core/design_system/quantum_textfield.dart';
 import 'package:expense_tracker/core/utils/currency_formatter.dart';
 import 'package:expense_tracker/core/storage/hive_service.dart';
+import 'package:expense_tracker/features/expenses/domain/entities/category_entity.dart';
+import 'package:expense_tracker/features/expenses/presentation/controllers/expense_controller.dart';
 
 class IncomeEntity {
   final String id;

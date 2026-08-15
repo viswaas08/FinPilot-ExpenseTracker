@@ -53,7 +53,6 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen>
             builder: (ctx) {
               final isDark = Theme.of(ctx).brightness == Brightness.dark;
               final txtCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
-              final subTxtCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
               return Text(
                 'Are you sure you want to delete this record? This action cannot be undone.',
                 textAlign: TextAlign.center,

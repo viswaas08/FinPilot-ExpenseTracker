@@ -74,7 +74,7 @@ class ExpenseRemoteDatasource {
         .doc(targetUser)
         .collection('expenses')
         .doc(updatedModel.id)
-        .set(updatedModel.toJson());
+        .set(ExpenseModel.fromEntity(updatedModel).toJson());
   }
 
   Future<void> addExpense(ExpenseModel expense) async {
