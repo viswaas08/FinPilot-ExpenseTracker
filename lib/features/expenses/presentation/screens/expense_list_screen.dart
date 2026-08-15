@@ -184,7 +184,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen>
                 child: Row(
                   children: [
                     CategoryChip(
-                      label: 'All',
+                      label: 'All Records',
                       icon: Icons.apps_rounded,
                       color: AppColors.primary,
                       isSelected: state.filter.selectedCategoryId == null &&
@@ -196,16 +196,16 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen>
                     ),
                     const SizedBox(width: 8),
                     CategoryChip(
-                      label: 'Income Only',
-                      icon: Icons.arrow_downward_rounded,
+                      label: '🟢 Income Entries',
+                      icon: Icons.arrow_upward_rounded,
                       color: AppColors.income,
                       isSelected: state.filter.isIncomeFilter == true,
                       onTap: () => controller.setTypeFilter(true),
                     ),
                     const SizedBox(width: 8),
                     CategoryChip(
-                      label: 'Expenses Only',
-                      icon: Icons.arrow_upward_rounded,
+                      label: '🔴 Expense Entries',
+                      icon: Icons.arrow_downward_rounded,
                       color: AppColors.expense,
                       isSelected: state.filter.isIncomeFilter == false,
                       onTap: () => controller.setTypeFilter(false),
@@ -238,7 +238,11 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Showing ${state.filteredExpenses.length} Records',
+                      state.filter.isIncomeFilter == true
+                          ? 'Showing ${state.filteredExpenses.length} Income Entries'
+                          : (state.filter.isIncomeFilter == false
+                              ? 'Showing ${state.filteredExpenses.length} Expense Entries'
+                              : 'Showing ${state.filteredExpenses.length} Records'),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -249,10 +253,14 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen>
                       CurrencyFormatter.format(
                         state.filteredExpenses.fold(0.0, (sum, e) => sum + e.amount),
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.primary,
+                        color: state.filter.isIncomeFilter == true
+                            ? AppColors.income
+                            : (state.filter.isIncomeFilter == false
+                                ? AppColors.expense
+                                : AppColors.primary),
                       ),
                     ),
                   ],

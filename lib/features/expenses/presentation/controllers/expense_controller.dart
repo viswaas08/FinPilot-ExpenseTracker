@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/auth/presentation/controllers/auth_controller.dart';
@@ -185,7 +184,6 @@ class ExpenseController extends StateNotifier<ExpenseState> {
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final currentUid = FirebaseAuth.instance.currentUser?.uid ?? 'current_user';
       final newExpense = ExpenseEntity(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
@@ -195,7 +193,7 @@ class ExpenseController extends StateNotifier<ExpenseState> {
         note: note,
         receiptUrl: receiptUrl,
         isIncome: isIncome,
-        userId: currentUid,
+        userId: 'current_user',
         paymentMethod: paymentMethod,
         accountType: accountType,
         accountSubType: accountSubType,

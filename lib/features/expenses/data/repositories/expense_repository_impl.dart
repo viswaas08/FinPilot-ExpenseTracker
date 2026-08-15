@@ -21,13 +21,26 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
         _remoteDataSource = remoteDataSource;
 
   String _resolveUserId(String userId) {
-    if (userId.isEmpty || userId == 'current_user') {
-      final authUid = FirebaseAuth.instance.currentUser?.uid;
-      if (authUid != null && authUid.isNotEmpty) {
-        return authUid;
+    final sessionUser = HiveService().getUserSession();
+    if (sessionUser != null) {
+      final email = sessionUser['email'] as String?;
+      if (email != null && email.contains('@')) {
+        final sanitized = email.trim().toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+        return 'user_$sanitized';
+      }
+      final id = sessionUser['id'] as String?;
+      if (id != null && id.isNotEmpty && id != 'current_user') {
+        return id;
       }
     }
-    return userId;
+
+    final authUser = FirebaseAuth.instance.currentUser;
+    if (authUser?.email != null && authUser!.email!.contains('@')) {
+      final sanitized = authUser.email!.trim().toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+      return 'user_$sanitized';
+    }
+
+    return 'user_viswaas08_gmail_com';
   }
 
   @override
