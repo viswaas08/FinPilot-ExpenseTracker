@@ -38,17 +38,7 @@ class LiquidGlassPageTransition extends StatelessWidget {
           ),
         );
 
-        if (kIsWeb) {
-          return transformedChild;
-        }
-
-        return BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: blurValue,
-            sigmaY: blurValue,
-          ),
-          child: transformedChild,
-        );
+        return transformedChild;
       },
       child: child,
     );

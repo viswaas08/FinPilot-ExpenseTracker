@@ -49,18 +49,30 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen>
       title: 'Delete Transaction',
       child: Column(
         children: [
-          const Text(
-            'Are you sure you want to delete this record? This action cannot be undone.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+          Builder(
+            builder: (ctx) {
+              final isDark = Theme.of(ctx).brightness == Brightness.dark;
+              final txtCol = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+              final subTxtCol = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+              return Text(
+                'Are you sure you want to delete this record? This action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: txtCol, fontSize: 14, height: 1.4),
+              );
+            },
           ),
           const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                child: Builder(
+                  builder: (ctx) {
+                    final isDark = Theme.of(ctx).brightness == Brightness.dark;
+                    return TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('Cancel', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 12),
@@ -277,10 +289,12 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen>
                   itemBuilder: (context, index) {
                     final item = state.filteredExpenses[index];
 
+                    final count = state.filteredExpenses.length;
+                    final double beginInterval = count > 0 ? (index / count).clamp(0.0, 0.7) : 0.0;
                     final itemAnim = CurvedAnimation(
                       parent: _cascadeController,
                       curve: Interval(
-                        (index / state.filteredExpenses.length).clamp(0.0, 0.7),
+                        beginInterval < 1.0 ? beginInterval : 0.0,
                         1.0,
                         curve: Curves.easeOutCubic,
                       ),

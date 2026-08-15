@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/expenses/domain/entities/category_entity.dart';
 import 'package:expense_tracker/features/expenses/domain/entities/expense_entity.dart';
@@ -84,9 +85,33 @@ class ExpenseState {
 
 class ExpenseController extends StateNotifier<ExpenseState> {
   final ExpenseRepository _repository;
+  StreamSubscription<List<ExpenseEntity>>? _streamSubscription;
 
   ExpenseController(this._repository) : super(const ExpenseState()) {
     loadExpenses();
+    _listenToRealtimeSync();
+  }
+
+  void _listenToRealtimeSync() {
+    _streamSubscription?.cancel();
+    _streamSubscription = _repository.watchExpenses().listen(
+      (list) {
+        if (list.isNotEmpty) {
+          state = state.copyWith(
+            expenses: list,
+            filteredExpenses: _applyFilter(list, state.filter),
+            isLoading: false,
+          );
+        }
+      },
+      onError: (_) {},
+    );
+  }
+
+  @override
+  void dispose() {
+    _streamSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> loadExpenses() async {

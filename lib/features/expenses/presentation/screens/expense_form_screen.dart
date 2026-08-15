@@ -398,7 +398,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                               ),
                             ),
                             const SizedBox(width: 4),
-                            IntrinsicWidth(
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(minWidth: 120, maxWidth: 240),
                               child: TextField(
                                 controller: _amountController,
                                 keyboardType: const TextInputType.numberWithOptions(decimal: true),

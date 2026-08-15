@@ -134,12 +134,7 @@ class _QuantumTextFieldState extends State<QuantumTextField> {
           ),
           child: ClipRRect(
             borderRadius: QuantumRadius.borderMd,
-            child: kIsWeb
-                ? innerTextField
-                : BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: innerTextField,
-                  ),
+            child: innerTextField,
           ),
         ),
         if (widget.errorText != null) ...[

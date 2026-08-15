@@ -23,10 +23,21 @@ abstract class GlassDialog {
               color: Colors.transparent,
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 440),
-                child: GlassContainer(
-                  borderRadius: borderRadius,
-                  blur: 24.0,
-                  opacity: 0.9,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    border: Border.all(
+                      color: theme.brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

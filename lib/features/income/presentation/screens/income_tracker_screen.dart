@@ -166,14 +166,17 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
             final name = sourceController.text.trim();
             final amt = double.tryParse(amountController.text.trim());
             if (name.isNotEmpty && amt != null && amt > 0) {
-              ref.read(incomeControllerProvider.notifier).addIncome(
-                    IncomeEntity(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      source: name,
-                      amount: amt,
-                      date: DateTime.now(),
-                      category: selectedCategory,
+              ref.read(expenseControllerProvider.notifier).addExpense(
+                    title: name,
+                    amount: amt,
+                    date: DateTime.now(),
+                    category: CategoryEntity(
+                      id: selectedCategory.toLowerCase().replaceAll(' ', '_'),
+                      name: selectedCategory,
+                      icon: Icons.account_balance_wallet_rounded,
+                      color: AppColors.income,
                     ),
+                    isIncome: true,
                   );
               Navigator.of(context).pop();
             }
@@ -185,7 +188,8 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final incomeList = ref.watch(incomeControllerProvider);
+    final expenseState = ref.watch(expenseControllerProvider);
+    final incomeList = expenseState.expenses.where((e) => e.isIncome).toList();
     final totalIncome = incomeList.fold<double>(0.0, (sum, item) => sum + item.amount);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
@@ -344,7 +348,7 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
                     return Dismissible(
                       key: Key(item.id),
                       direction: DismissDirection.endToStart,
-                      onDismissed: (_) => ref.read(incomeControllerProvider.notifier).deleteIncome(item.id),
+                      onDismissed: (_) => ref.read(expenseControllerProvider.notifier).deleteExpense(item.id),
                       background: Container(
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.only(right: 20),
@@ -355,8 +359,8 @@ class _IncomeTrackerScreenState extends ConsumerState<IncomeTrackerScreen> {
                         child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
                       ),
                       child: TitaniumTransactionTile(
-                        title: item.source,
-                        category: item.category,
+                        title: item.title,
+                        category: item.category.name,
                         dateText: '${item.date.day}/${item.date.month}/${item.date.year}',
                         amount: item.amount,
                         isIncome: true,

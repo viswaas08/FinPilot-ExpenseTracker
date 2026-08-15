@@ -21,23 +21,25 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   @override
   Future<List<ExpenseEntity>> getExpenses([String userId = 'current_user']) async {
     try {
-      final localModels = await _localDataSource.getExpenses(userId);
-      if (localModels.isNotEmpty) {
-        return localModels;
-      }
       final remoteModels = await _remoteDataSource.getExpenses(userId);
-      for (final model in remoteModels) {
-        await _localDataSource.saveExpense(model);
+      if (remoteModels.isNotEmpty) {
+        await _localDataSource.saveAllExpenses(remoteModels);
+        return remoteModels;
       }
-      return remoteModels;
+      return await _localDataSource.getExpenses(userId);
     } catch (_) {
-      return _localDataSource.getExpenses(userId);
+      return await _localDataSource.getExpenses(userId);
     }
   }
 
   @override
   Stream<List<ExpenseEntity>> watchExpenses([String userId = 'current_user']) {
-    return _remoteDataSource.watchExpenses(userId);
+    return _remoteDataSource.watchExpenses(userId).map((models) {
+      if (models.isNotEmpty) {
+        _localDataSource.saveAllExpenses(models);
+      }
+      return models;
+    });
   }
 
   @override
