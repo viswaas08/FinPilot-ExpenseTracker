@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/firebase/firebase_service.dart';
 import '../models/expense_model.dart';
@@ -13,13 +14,24 @@ class ExpenseRemoteDatasource {
     return FirebaseFirestore.instance;
   }
 
+  String _resolveUserId(String userId) {
+    if (userId.isEmpty || userId == 'current_user') {
+      final authUid = FirebaseAuth.instance.currentUser?.uid;
+      if (authUid != null && authUid.isNotEmpty) {
+        return authUid;
+      }
+    }
+    return userId;
+  }
+
   Future<List<ExpenseModel>> getExpenses(String userId) async {
     final firestore = _firestore;
     if (firestore == null) return [];
 
+    final targetUser = _resolveUserId(userId);
     final snapshot = await firestore
         .collection('users')
-        .doc(userId)
+        .doc(targetUser)
         .collection('expenses')
         .orderBy('date', descending: true)
         .get();
@@ -33,9 +45,10 @@ class ExpenseRemoteDatasource {
     final firestore = _firestore;
     if (firestore == null) return Stream.value([]);
 
+    final targetUser = _resolveUserId(userId);
     return firestore
         .collection('users')
-        .doc(userId)
+        .doc(targetUser)
         .collection('expenses')
         .orderBy('date', descending: true)
         .snapshots()
@@ -51,12 +64,17 @@ class ExpenseRemoteDatasource {
     final firestore = _firestore;
     if (firestore == null) return;
 
+    final targetUser = _resolveUserId(expense.userId);
+    final updatedModel = expense.userId != targetUser
+        ? expense.copyWith(userId: targetUser)
+        : expense;
+
     await firestore
         .collection('users')
-        .doc(expense.userId)
+        .doc(targetUser)
         .collection('expenses')
-        .doc(expense.id)
-        .set(expense.toJson());
+        .doc(updatedModel.id)
+        .set(updatedModel.toJson());
   }
 
   Future<void> addExpense(ExpenseModel expense) async {
@@ -72,7 +90,7 @@ class ExpenseRemoteDatasource {
     if (firestore == null) return;
 
     final targetId = expenseId ?? userId;
-    final targetUser = expenseId != null ? userId : 'current_user';
+    final targetUser = _resolveUserId(expenseId != null ? userId : 'current_user');
 
     await firestore
         .collection('users')

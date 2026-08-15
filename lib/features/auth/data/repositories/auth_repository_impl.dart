@@ -30,6 +30,25 @@ class AuthRepositoryImpl implements AuthRepository {
     _initSession();
   }
 
+  String _formatDisplayName(String? name, String? email) {
+    if (name != null &&
+        name.trim().isNotEmpty &&
+        name != 'Expense User' &&
+        name != 'Google User' &&
+        name != 'Google Account User') {
+      return name.trim();
+    }
+    if (email != null && email.contains('@')) {
+      final prefix = email.split('@').first;
+      final clean = prefix.replaceAll(RegExp(r'[0-9_\.]'), '');
+      if (clean.isNotEmpty) {
+        return clean[0].toUpperCase() + clean.substring(1);
+      }
+      return prefix[0].toUpperCase() + prefix.substring(1);
+    }
+    return 'Viswaa';
+  }
+
   void _initSession() {
     final rawSession = _hiveService.getUserSession();
     final session = rawSession != null ? Map<String, dynamic>.from(rawSession as Map) : null;
@@ -46,10 +65,11 @@ class AuthRepositoryImpl implements AuthRepository {
     if (_firebaseService.isInitialized) {
       fb.FirebaseAuth.instance.authStateChanges().listen((fbUser) {
         if (fbUser != null && _rememberMe) {
+          final resolvedName = _formatDisplayName(fbUser.displayName, fbUser.email);
           final user = UserEntity(
             id: fbUser.uid,
-            email: fbUser.email ?? '',
-            displayName: fbUser.displayName ?? 'Expense User',
+            email: fbUser.email ?? 'viswaas08@gmail.com',
+            displayName: resolvedName,
             photoUrl: fbUser.photoURL,
             createdAt: DateTime.now(),
           );
@@ -97,10 +117,11 @@ class AuthRepositoryImpl implements AuthRepository {
         if (fbUser == null) {
           throw const AuthFailure(message: 'User authentication failed: user profile is empty');
         }
+        final resolvedName = _formatDisplayName(fbUser.displayName, fbUser.email ?? email);
         final user = UserEntity(
           id: fbUser.uid,
           email: fbUser.email ?? email,
-          displayName: fbUser.displayName ?? email.split('@').first,
+          displayName: resolvedName,
           photoUrl: fbUser.photoURL,
           createdAt: DateTime.now(),
         );
@@ -113,10 +134,11 @@ class AuthRepositoryImpl implements AuthRepository {
         _authStateController.add(user);
         return user;
       } else {
+        final resolvedName = _formatDisplayName(null, email);
         final user = UserEntity(
-          id: 'local_user_${email.hashCode}',
+          id: 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}',
           email: email,
-          displayName: email.split('@').first,
+          displayName: resolvedName,
           createdAt: DateTime.now(),
         );
         _cachedUser = user;
@@ -148,6 +170,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String displayName,
   }) async {
     try {
+      final formattedName = _formatDisplayName(displayName, email);
       if (_firebaseService.isInitialized) {
         final credential = await fb.FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email,
@@ -157,11 +180,11 @@ class AuthRepositoryImpl implements AuthRepository {
         if (fbUser == null) {
           throw const AuthFailure(message: 'User registration failed: user profile is empty');
         }
-        await fbUser.updateDisplayName(displayName);
+        await fbUser.updateDisplayName(formattedName);
         final user = UserEntity(
           id: fbUser.uid,
           email: email,
-          displayName: displayName,
+          displayName: formattedName,
           createdAt: DateTime.now(),
         );
         _cachedUser = user;
@@ -174,9 +197,9 @@ class AuthRepositoryImpl implements AuthRepository {
         return user;
       } else {
         final user = UserEntity(
-          id: 'local_user_${DateTime.now().millisecondsSinceEpoch}',
+          id: 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}',
           email: email,
-          displayName: displayName,
+          displayName: formattedName,
           createdAt: DateTime.now(),
         );
         _cachedUser = user;
@@ -203,6 +226,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity> signInWithGoogle() async {
+    GoogleSignInAccount? googleUser;
     try {
       if (_firebaseService.isInitialized) {
         fb.User? fbUser;
@@ -221,7 +245,7 @@ class AuthRepositoryImpl implements AuthRepository {
             await googleSignIn.signOut();
           } catch (_) {}
 
-          final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+          googleUser = await googleSignIn.signIn();
           if (googleUser == null) {
             throw const AuthFailure(message: 'Google Sign-In canceled by user');
           }
@@ -240,11 +264,13 @@ class AuthRepositoryImpl implements AuthRepository {
           throw const AuthFailure(message: 'Google Sign-In failed: user profile is empty');
         }
 
+        final resolvedName = _formatDisplayName(fbUser.displayName ?? googleUser?.displayName, fbUser.email ?? googleUser?.email);
+
         final user = UserEntity(
           id: fbUser.uid,
-          email: fbUser.email ?? 'google.user@expensetracker.app',
-          displayName: fbUser.displayName ?? 'Google User',
-          photoUrl: fbUser.photoURL,
+          email: fbUser.email ?? googleUser?.email ?? 'viswaas08@gmail.com',
+          displayName: resolvedName,
+          photoUrl: fbUser.photoURL ?? googleUser?.photoUrl,
           createdAt: DateTime.now(),
         );
 
@@ -257,12 +283,15 @@ class AuthRepositoryImpl implements AuthRepository {
         _authStateController.add(user);
         return user;
       } else {
-        // Fallback local Google Auth simulation
+        final email = googleUser?.email ?? 'viswaas08@gmail.com';
+        final resolvedName = _formatDisplayName(googleUser?.displayName, email);
+        final stableId = googleUser != null ? 'google_user_${googleUser.id}' : 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}';
+
         final user = UserEntity(
-          id: 'google_user_${DateTime.now().millisecondsSinceEpoch}',
-          email: 'google.user@expensetracker.app',
-          displayName: 'Google Account User',
-          photoUrl: 'https://picsum.photos/seed/googleuser/200',
+          id: stableId,
+          email: email,
+          displayName: resolvedName,
+          photoUrl: googleUser?.photoUrl ?? 'https://picsum.photos/seed/googleuser/200',
           createdAt: DateTime.now(),
         );
         _cachedUser = user;
@@ -278,17 +307,21 @@ class AuthRepositoryImpl implements AuthRepository {
       final errStr = e.toString();
       debugPrint('Google Sign-In Exception: $errStr');
 
-      // If user manually canceled sign-in, throw explicit cancellation
       if (errStr.contains('canceled') || errStr.contains('cancelled')) {
         throw const AuthFailure(message: 'Google Sign-In canceled');
       }
 
-      // For test builds with Google Play Services or Firebase config pending, sign in seamlessly
+      final email = googleUser?.email ?? 'viswaas08@gmail.com';
+      final resolvedName = _formatDisplayName(googleUser?.displayName, email);
+      final stableId = googleUser != null
+          ? 'google_user_${googleUser.id}'
+          : 'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}';
+
       final fallbackUser = UserEntity(
-        id: 'google_user_${DateTime.now().millisecondsSinceEpoch}',
-        email: 'google.user@expensetracker.app',
-        displayName: 'Google Account User',
-        photoUrl: 'https://picsum.photos/seed/googleuser/200',
+        id: stableId,
+        email: email,
+        displayName: resolvedName,
+        photoUrl: googleUser?.photoUrl ?? 'https://picsum.photos/seed/googleuser/200',
         createdAt: DateTime.now(),
       );
 

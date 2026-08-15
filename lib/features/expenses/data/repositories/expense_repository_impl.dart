@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/core/firebase/firebase_service.dart';
 import 'package:expense_tracker/core/storage/hive_service.dart';
@@ -18,23 +19,35 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   })  : _localDataSource = localDataSource,
         _remoteDataSource = remoteDataSource;
 
+  String _resolveUserId(String userId) {
+    if (userId.isEmpty || userId == 'current_user') {
+      final authUid = FirebaseAuth.instance.currentUser?.uid;
+      if (authUid != null && authUid.isNotEmpty) {
+        return authUid;
+      }
+    }
+    return userId;
+  }
+
   @override
   Future<List<ExpenseEntity>> getExpenses([String userId = 'current_user']) async {
+    final targetUser = _resolveUserId(userId);
     try {
-      final remoteModels = await _remoteDataSource.getExpenses(userId);
+      final remoteModels = await _remoteDataSource.getExpenses(targetUser);
       if (remoteModels.isNotEmpty) {
         await _localDataSource.saveAllExpenses(remoteModels);
         return remoteModels;
       }
-      return await _localDataSource.getExpenses(userId);
+      return await _localDataSource.getExpenses(targetUser);
     } catch (_) {
-      return await _localDataSource.getExpenses(userId);
+      return await _localDataSource.getExpenses(targetUser);
     }
   }
 
   @override
   Stream<List<ExpenseEntity>> watchExpenses([String userId = 'current_user']) {
-    return _remoteDataSource.watchExpenses(userId).map((models) {
+    final targetUser = _resolveUserId(userId);
+    return _remoteDataSource.watchExpenses(targetUser).map((models) {
       if (models.isNotEmpty) {
         _localDataSource.saveAllExpenses(models);
       }
