@@ -83,7 +83,7 @@ class _GlassDonutChartState extends State<GlassDonutChart> {
           else ...[
             // Donut Chart with Center Text Overlay
             SizedBox(
-              height: 220,
+              height: 170,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -104,12 +104,12 @@ class _GlassDonutChartState extends State<GlassDonutChart> {
                         },
                       ),
                       borderData: FlBorderData(show: false),
-                      sectionsSpace: 4,
-                      centerSpaceRadius: 56,
+                      sectionsSpace: 3,
+                      centerSpaceRadius: 42,
                       sections: List.generate(items.length, (i) {
                         final item = items[i];
                         final isTouched = i == _touchedIndex;
-                        final radius = isTouched ? 48.0 : 38.0;
+                        final radius = isTouched ? 26.0 : 20.0;
                         final catColor = item.category?.color ?? const Color(0xFF06B6D4);
 
                         return PieChartSectionData(

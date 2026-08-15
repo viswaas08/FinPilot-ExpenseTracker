@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
+  // Fintech Design System Tokens
+  static const Color fintechBackground = Color(0xFF0B0F14);
+  static const Color fintechSurface = Color(0xFF141B26);
+  static const Color fintechElevated = Color(0xFF1B2638);
+  static const Color fintechBorder = Color(0xFF2A3A52);
+  static const Color fintechPrimary = Color(0xFF6C5CE7);
+  static const Color fintechIncome = Color(0xFF22C55E);
+  static const Color fintechExpense = Color(0xFFEF4444);
+  static const Color fintechTextPrimary = Color(0xFFF8FAFC);
+  static const Color fintechTextSecondary = Color(0xFF94A3B8);
+
   // Background & Surfaces (Flat Neutral Slate)
-  static const Color background = Color(0xFF111315);
-  static const Color surface = Color(0xFF1A1D21);
-  static const Color card = Color(0xFF20242A);
-  static const Color elevatedSurface = Color(0xFF262A32);
+  static const Color background = Color(0xFF0B0F14);
+  static const Color surface = Color(0xFF141B26);
+  static const Color card = Color(0xFF1B2638);
+  static const Color elevatedSurface = Color(0xFF1B2638);
   
-  // Accents (Enterprise Indigo)
-  static const Color primary = Color(0xFF4F46E5);
-  static const Color primaryVariant = Color(0xFF4338CA);
+  // Accents (Fintech Brand Purple)
+  static const Color primary = Color(0xFF6C5CE7);
+  static const Color primaryVariant = Color(0xFF5B4BD8);
   static const Color secondary = Color(0xFF38BDF8);
   static const Color tertiary = Color(0xFFF59E0B);
   static const Color success = Color(0xFF22C55E);
@@ -18,12 +29,12 @@ abstract class AppColors {
 
   // Text Hierarchy
   static const Color primaryText = Color(0xFFF8FAFC);
-  static const Color secondaryText = Color(0xFFA1A1AA);
-  static const Color mutedText = Color(0xFF71717A);
+  static const Color secondaryText = Color(0xFF94A3B8);
+  static const Color mutedText = Color(0xFF64748B);
 
   // Borders & Dividers
-  static const Color border = Color(0xFF2B2F36);
-  static const Color divider = Color(0xFF2B2F36);
+  static const Color border = Color(0xFF2A3A52);
+  static const Color divider = Color(0xFF2A3A52);
 
   // Semantic Financial Aliases
   static const Color income = Color(0xFF22C55E);
