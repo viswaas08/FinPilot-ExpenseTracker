@@ -44,22 +44,62 @@ class ExpenseRemoteDatasource {
     return 'user_viswaas08_gmail_com';
   }
 
+  Future<void> _migrateLegacyDocuments(FirebaseFirestore firestore, String targetUser) async {
+    final authUid = FirebaseAuth.instance.currentUser?.uid;
+    final List<String> legacyPaths = [
+      if (authUid != null && authUid.isNotEmpty && authUid != targetUser) authUid,
+      'current_user',
+    ];
+
+    for (final legacyId in legacyPaths) {
+      try {
+        final snap = await firestore
+            .collection('users')
+            .doc(legacyId)
+            .collection('expenses')
+            .get();
+
+        if (snap.docs.isNotEmpty) {
+          debugPrint('Migrating ${snap.docs.length} legacy documents from $legacyId to $targetUser');
+          final batch = firestore.batch();
+          for (final doc in snap.docs) {
+            final data = doc.data();
+            data['userId'] = targetUser;
+            final targetDocRef = firestore
+                .collection('users')
+                .doc(targetUser)
+                .collection('expenses')
+                .doc(doc.id);
+            batch.set(targetDocRef, data, SetOptions(merge: true));
+          }
+          await batch.commit();
+        }
+      } catch (e) {
+        debugPrint('Legacy document migration check for $legacyId exception: $e');
+      }
+    }
+  }
+
   Future<List<ExpenseModel>> getExpenses(String userId) async {
     final firestore = _firestore;
     if (firestore == null) return [];
 
     final targetUser = _resolveUserId(userId);
+    await _migrateLegacyDocuments(firestore, targetUser);
+
     try {
       final snapshot = await firestore
           .collection('users')
           .doc(targetUser)
           .collection('expenses')
-          .orderBy('date', descending: true)
           .get();
 
-      return snapshot.docs
+      final list = snapshot.docs
           .map((doc) => ExpenseModel.fromJson(doc.data()))
           .toList();
+
+      list.sort((a, b) => b.date.compareTo(a.date));
+      return list;
     } catch (e) {
       debugPrint('Firestore getExpenses error: $e');
       return [];
@@ -71,14 +111,20 @@ class ExpenseRemoteDatasource {
     if (firestore == null) return Stream.value([]);
 
     final targetUser = _resolveUserId(userId);
+    _migrateLegacyDocuments(firestore, targetUser);
+
     return firestore
         .collection('users')
         .doc(targetUser)
         .collection('expenses')
-        .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => ExpenseModel.fromJson(doc.data())).toList());
+        .map((snapshot) {
+      final list = snapshot.docs
+          .map((doc) => ExpenseModel.fromJson(doc.data()))
+          .toList();
+      list.sort((a, b) => b.date.compareTo(a.date));
+      return list;
+    });
   }
 
   Future<ExpenseModel?> getExpenseById(String id) async {

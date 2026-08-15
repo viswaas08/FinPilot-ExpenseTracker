@@ -48,9 +48,9 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
   @override
   Stream<List<ExpenseEntity>> watchExpenses([String userId = 'current_user']) {
     final targetUser = _resolveUserId(userId);
-    return _remoteDataSource.watchExpenses(targetUser).map((models) {
+    return _remoteDataSource.watchExpenses(targetUser).asyncMap((models) async {
       if (models.isNotEmpty) {
-        _localDataSource.saveAllExpenses(models);
+        await _localDataSource.saveAllExpenses(models);
       }
       return models;
     });
