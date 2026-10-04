@@ -1,0 +1,26 @@
+{
+  "name": "finpilot-backend",
+  "version": "2.0.0",
+  "description": "Secure server-side gateway for FinPilot 2.0 Gemini AI and Google Sheets integrations",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "googleapis": "^144.0.0",
+    "@google/generative-ai": "^0.24.1",
+    "firebase-admin": "^12.7.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3",
+    "ts-node": "^10.9.2"
+  }
+}

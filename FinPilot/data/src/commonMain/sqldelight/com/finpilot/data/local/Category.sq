@@ -1,0 +1,30 @@
+CREATE TABLE CategoryEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    userId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    icon TEXT NOT NULL DEFAULT 'category',
+    color TEXT NOT NULL DEFAULT '#6C5CE7',
+    type TEXT NOT NULL DEFAULT 'EXPENSE',
+    isDefault INTEGER NOT NULL DEFAULT 0,
+    budgetLimitMinorUnits INTEGER,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    version INTEGER NOT NULL DEFAULT 1,
+    syncStatus TEXT NOT NULL DEFAULT 'SYNCED'
+);
+
+selectAllCategories:
+SELECT * FROM CategoryEntity WHERE deletedAt IS NULL ORDER BY name ASC;
+
+selectCategoryById:
+SELECT * FROM CategoryEntity WHERE id = :id AND deletedAt IS NULL LIMIT 1;
+
+insertCategory:
+INSERT OR REPLACE INTO CategoryEntity (
+    id, userId, name, icon, color, type, isDefault, budgetLimitMinorUnits,
+    createdAt, updatedAt, deletedAt, version, syncStatus
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+softDeleteCategory:
+UPDATE CategoryEntity SET deletedAt = :deletedAt, updatedAt = :updatedAt, syncStatus = 'PENDING_DELETE' WHERE id = :id;

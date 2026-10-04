@@ -50,4 +50,16 @@ app.*.map.json
 # Credentials & API keys
 SERVICEACCKEY/
 API/
+.env
+*.env.local
 
+# Node & Backend
+node_modules/
+backend/node_modules/
+backend/dist/
+
+# Kotlin Multiplatform & Gradle
+.gradle/
+**/build/
+FinPilot/.gradle/
+FinPilot/**/build/

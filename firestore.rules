@@ -1,39 +1,53 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // User profile data
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profile and private financial data collections
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Expenses subcollection
-      match /expenses/{expenseId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+
+      // Financial Accounts subcollection
+      match /accounts/{accountId} {
+        allow read, write: if isOwner(userId);
       }
-      
-      // Income subcollection
-      match /income/{incomeId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Transactions subcollection
+      match /transactions/{transactionId} {
+        allow read, write: if isOwner(userId);
       }
-      
+
       // Budgets subcollection
       match /budgets/{budgetId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
-      
-      // Recurring transactions subcollection
-      match /recurring/{recurringId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-      
-      // Savings goals subcollection
+
+      // Savings Goals subcollection
       match /savings_goals/{goalId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
-      
-      // Categories subcollection
+
+      // Subscriptions & Recurring Transactions subcollection
+      match /subscriptions/{subscriptionId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Custom Categories subcollection
       match /categories/{categoryId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
+      }
+
+      // Sync Mutation Queue
+      match /sync_queue/{queueId} {
+        allow read, write: if isOwner(userId);
       }
     }
   }

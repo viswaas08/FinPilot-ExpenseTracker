@@ -1,0 +1,34 @@
+CREATE TABLE SavingsGoalEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    userId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    targetAmountMinorUnits INTEGER NOT NULL,
+    currentAmountMinorUnits INTEGER NOT NULL DEFAULT 0,
+    targetDate INTEGER NOT NULL,
+    associatedAccountId TEXT,
+    monthlyContributionMinorUnits INTEGER NOT NULL DEFAULT 0,
+    icon TEXT NOT NULL DEFAULT 'flag',
+    color TEXT NOT NULL DEFAULT '#10B981',
+    isCompleted INTEGER NOT NULL DEFAULT 0,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    version INTEGER NOT NULL DEFAULT 1,
+    syncStatus TEXT NOT NULL DEFAULT 'SYNCED'
+);
+
+selectAllGoals:
+SELECT * FROM SavingsGoalEntity WHERE deletedAt IS NULL ORDER BY targetDate ASC;
+
+selectGoalById:
+SELECT * FROM SavingsGoalEntity WHERE id = :id AND deletedAt IS NULL LIMIT 1;
+
+insertGoal:
+INSERT OR REPLACE INTO SavingsGoalEntity (
+    id, userId, name, targetAmountMinorUnits, currentAmountMinorUnits, targetDate,
+    associatedAccountId, monthlyContributionMinorUnits, icon, color, isCompleted,
+    createdAt, updatedAt, deletedAt, version, syncStatus
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+softDeleteGoal:
+UPDATE SavingsGoalEntity SET deletedAt = :deletedAt, updatedAt = :updatedAt, syncStatus = 'PENDING_DELETE' WHERE id = :id;

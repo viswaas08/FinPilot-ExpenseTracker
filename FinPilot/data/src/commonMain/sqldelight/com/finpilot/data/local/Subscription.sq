@@ -1,0 +1,36 @@
+CREATE TABLE SubscriptionEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    userId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    amountMinorUnits INTEGER NOT NULL,
+    currency TEXT NOT NULL DEFAULT 'INR',
+    frequency TEXT NOT NULL DEFAULT 'MONTHLY',
+    nextPaymentDate INTEGER NOT NULL,
+    categoryId TEXT NOT NULL DEFAULT '',
+    accountId TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'ACTIVE',
+    reminderEnabled INTEGER NOT NULL DEFAULT 1,
+    isIncome INTEGER NOT NULL DEFAULT 0,
+    lastBilledDate INTEGER,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    version INTEGER NOT NULL DEFAULT 1,
+    syncStatus TEXT NOT NULL DEFAULT 'SYNCED'
+);
+
+selectAllSubscriptions:
+SELECT * FROM SubscriptionEntity WHERE deletedAt IS NULL ORDER BY nextPaymentDate ASC;
+
+selectSubscriptionById:
+SELECT * FROM SubscriptionEntity WHERE id = :id AND deletedAt IS NULL LIMIT 1;
+
+insertSubscription:
+INSERT OR REPLACE INTO SubscriptionEntity (
+    id, userId, name, amountMinorUnits, currency, frequency, nextPaymentDate,
+    categoryId, accountId, status, reminderEnabled, isIncome, lastBilledDate,
+    createdAt, updatedAt, deletedAt, version, syncStatus
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+softDeleteSubscription:
+UPDATE SubscriptionEntity SET deletedAt = :deletedAt, updatedAt = :updatedAt, syncStatus = 'PENDING_DELETE' WHERE id = :id;

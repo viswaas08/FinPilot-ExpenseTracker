@@ -1,0 +1,41 @@
+CREATE TABLE AccountEntity (
+    id TEXT PRIMARY KEY NOT NULL,
+    userId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    institutionName TEXT NOT NULL DEFAULT '',
+    maskedAccountNumber TEXT NOT NULL DEFAULT '',
+    currency TEXT NOT NULL DEFAULT 'INR',
+    openingBalanceMinorUnits INTEGER NOT NULL DEFAULT 0,
+    currentBalanceMinorUnits INTEGER NOT NULL DEFAULT 0,
+    creditLimitMinorUnits INTEGER,
+    billingDate INTEGER,
+    dueDate INTEGER,
+    color TEXT NOT NULL DEFAULT '#6C5CE7',
+    icon TEXT NOT NULL DEFAULT 'account_balance',
+    isActive INTEGER NOT NULL DEFAULT 1,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    version INTEGER NOT NULL DEFAULT 1,
+    syncStatus TEXT NOT NULL DEFAULT 'SYNCED'
+);
+
+selectAllAccounts:
+SELECT * FROM AccountEntity WHERE deletedAt IS NULL ORDER BY createdAt ASC;
+
+selectAccountById:
+SELECT * FROM AccountEntity WHERE id = :id AND deletedAt IS NULL LIMIT 1;
+
+insertAccount:
+INSERT OR REPLACE INTO AccountEntity (
+    id, userId, name, type, institutionName, maskedAccountNumber, currency,
+    openingBalanceMinorUnits, currentBalanceMinorUnits, creditLimitMinorUnits,
+    billingDate, dueDate, color, icon, isActive, createdAt, updatedAt, deletedAt, version, syncStatus
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateAccountBalance:
+UPDATE AccountEntity SET currentBalanceMinorUnits = :balanceMinorUnits, updatedAt = :updatedAt, syncStatus = :syncStatus WHERE id = :id;
+
+softDeleteAccount:
+UPDATE AccountEntity SET deletedAt = :deletedAt, updatedAt = :updatedAt, syncStatus = 'PENDING_DELETE' WHERE id = :id;
