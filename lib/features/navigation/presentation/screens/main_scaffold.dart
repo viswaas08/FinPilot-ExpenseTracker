@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
-import 'package:expense_tracker/core/theme/app_typography.dart';
+import 'package:expense_tracker/core/theme/theme_provider.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/personal_finance_dashboard_screen.dart';
+import 'package:expense_tracker/features/google_sheets/presentation/screens/google_sheets_screen.dart';
+import 'package:expense_tracker/features/google_sheets/presentation/controllers/google_sheets_controller.dart';
 import 'package:expense_tracker/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:expense_tracker/features/income/presentation/screens/income_tracker_screen.dart';
-import 'package:expense_tracker/features/savings_goals/presentation/screens/savings_goals_dashboard_screen.dart';
 import 'package:expense_tracker/features/budget/presentation/screens/budget_dashboard_screen.dart';
-import 'package:expense_tracker/features/recurring/presentation/screens/recurring_dashboard_screen.dart';
-import 'package:expense_tracker/features/categories/presentation/screens/category_management_screen.dart';
 import 'package:expense_tracker/features/settings/presentation/screens/settings_dashboard_screen.dart';
 import 'package:expense_tracker/features/notifications/presentation/screens/notification_center_screen.dart';
-import 'package:expense_tracker/features/google_sheets/presentation/screens/google_sheets_screen.dart';
 
 class MainScaffold extends ConsumerStatefulWidget {
   final Widget? child;
@@ -28,223 +26,410 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
 
   final List<Widget> _pages = const [
     PersonalFinanceDashboardScreen(),
+    GoogleSheetsScreen(),
     AnalyticsScreen(),
     IncomeTrackerScreen(),
-    SavingsGoalsDashboardScreen(),
+    BudgetDashboardScreen(),
+  ];
+
+  final List<Map<String, dynamic>> _navItems = const [
+    {'title': 'Dashboard', 'icon': Icons.dashboard_rounded},
+    {'title': 'Google Sheets', 'icon': Icons.table_chart_rounded, 'badge': 'NEW'},
+    {'title': 'Analytics', 'icon': Icons.insights_rounded},
+    {'title': 'Income & Accounts', 'icon': Icons.account_balance_wallet_rounded},
+    {'title': 'Budgets & Goals', 'icon': Icons.pie_chart_rounded},
   ];
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
   }
 
-  void _showAllFeatureSheet() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? AppColors.surface : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Financial Apps & Tools',
-                style: AppTypography.screenTitle.copyWith(
-                  fontSize: 18,
-                  color: isDark ? AppColors.primaryText : AppColors.lightTextPrimary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 3,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                children: [
-                  _buildHubTile(Icons.pie_chart_outline_rounded, 'Budgets', () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetDashboardScreen()));
-                  }),
-                  _buildHubTile(Icons.repeat_rounded, 'Subscriptions', () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringDashboardScreen()));
-                  }),
-                  _buildHubTile(Icons.category_outlined, 'Categories', () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryManagementScreen()));
-                  }),
-                  _buildHubTile(Icons.table_chart_rounded, 'Google Sheets', () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const GoogleSheetsScreen()));
-                  }),
-                  _buildHubTile(Icons.notifications_none_rounded, 'Alerts', () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationCenterScreen()));
-                  }),
-                  _buildHubTile(Icons.settings_outlined, 'Settings', () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsDashboardScreen()));
-                  }),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHubTile(IconData icon, String title, VoidCallback onTap) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.card : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 22, color: AppColors.primary),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: AppTypography.caption.copyWith(
-                color: isDark ? AppColors.primaryText : AppColors.lightTextPrimary,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetsState = ref.watch(googleSheetsControllerProvider);
+    final sheetsController = ref.read(googleSheetsControllerProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.background : AppColors.lightBackground,
-      appBar: AppBar(
-        backgroundColor: isDark ? AppColors.surface : Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
+    final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
+    final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 900;
+
+        return Scaffold(
+          backgroundColor: isDark ? AppColors.background : AppColors.lightBackground,
+          // Desktop / Web Top Navbar
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(isDesktop ? 70 : 60),
+            child: Container(
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                color: isDark ? AppColors.surface : Colors.white,
+                border: Border(
+                  bottom: BorderSide(
+                    color: AppColors.goldPrimary.withValues(alpha: 0.25),
+                    width: 1.0,
+                  ),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.goldPrimary.withValues(alpha: isDark ? 0.05 : 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.account_balance_wallet_rounded, size: 18, color: AppColors.primary),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'FinPilot',
-              style: AppTypography.screenTitle.copyWith(
-                fontSize: 18,
-                color: isDark ? AppColors.primaryText : AppColors.lightTextPrimary,
+              padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    // Brand Logo & Title
+                    InkWell(
+                      onTap: () => _onItemTapped(0),
+                      borderRadius: BorderRadius.circular(10),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              gradient: AppColors.goldGradient,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.goldPrimary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.account_balance_wallet_rounded,
+                              size: 20,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'FinPilot',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: textColor,
+                                      letterSpacing: -0.3,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.goldPrimary.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Text(
+                                      'GOLD',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.goldPrimary,
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Text(
+                                'FINANCIAL INTELLIGENCE & SHEETS',
+                                style: TextStyle(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.goldPrimary,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Center Navigation Links for Desktop
+                    if (isDesktop) ...[
+                      const SizedBox(width: 32),
+                      Expanded(
+                        child: Row(
+                          children: List.generate(_navItems.length, (index) {
+                            final item = _navItems[index];
+                            final isSelected = _selectedIndex == index;
+
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: InkWell(
+                                onTap: () => _onItemTapped(index),
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? AppColors.goldPrimary.withValues(alpha: 0.15)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? AppColors.goldPrimary.withValues(alpha: 0.4)
+                                          : Colors.transparent,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        item['icon'] as IconData,
+                                        size: 17,
+                                        color: isSelected
+                                            ? AppColors.goldPrimary
+                                            : subTextColor,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        item['title'] as String,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                          color: isSelected
+                                              ? (isDark ? Colors.white : AppColors.goldDark)
+                                              : subTextColor,
+                                        ),
+                                      ),
+                                      if (item.containsKey('badge')) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.goldPrimary,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            item['badge'] as String,
+                                            style: const TextStyle(
+                                              fontSize: 8,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ] else
+                      const Spacer(),
+
+                    // Right Actions
+                    // 1. Google Sheets Sync Status Button
+                    InkWell(
+                      onTap: () {
+                        if (_selectedIndex != 1) {
+                          _onItemTapped(1);
+                        } else {
+                          sheetsController.syncNow();
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.goldPrimary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.goldPrimary.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                color: sheetsState.config.isConnected
+                                    ? AppColors.income
+                                    : AppColors.goldPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isDesktop
+                                  ? (sheetsState.isSyncing
+                                      ? 'Syncing Sheets...'
+                                      : (sheetsState.config.isConnected ? 'Sheets Synced' : 'Link Sheets'))
+                                  : 'Sheets',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.goldPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // 2. Add Expense Quick Button
+                    ElevatedButton.icon(
+                      onPressed: () => context.push('/add-expense'),
+                      icon: const Icon(Icons.add_rounded, size: 16, color: Colors.black),
+                      label: Text(
+                        isDesktop ? 'Add Expense' : 'Add',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.goldPrimary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isDesktop ? 14 : 10,
+                          vertical: 10,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // 3. Theme Toggle Button
+                    IconButton(
+                      tooltip: isDark ? 'Switch to Clear Light Gold' : 'Switch to Deep Obsidian Gold',
+                      icon: Icon(
+                        isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                        size: 20,
+                        color: AppColors.goldPrimary,
+                      ),
+                      onPressed: () {
+                        ref.read(themeProvider.notifier).toggleTheme();
+                      },
+                    ),
+
+                    // 4. Notifications / Alerts
+                    IconButton(
+                      tooltip: 'Notifications',
+                      icon: const Icon(Icons.notifications_none_rounded, size: 20),
+                      color: subTextColor,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const NotificationCenterScreen()),
+                        );
+                      },
+                    ),
+
+                    // 5. Settings
+                    IconButton(
+                      tooltip: 'Settings',
+                      icon: const Icon(Icons.settings_outlined, size: 20),
+                      color: subTextColor,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SettingsDashboardScreen()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.apps_rounded, size: 20),
-            color: isDark ? AppColors.secondaryText : AppColors.lightTextSecondary,
-            onPressed: _showAllFeatureSheet,
-            tooltip: 'All Apps',
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isDesktop = constraints.maxWidth >= 900;
-          final content = IndexedStack(
-            index: _selectedIndex,
-            children: _pages,
-          );
+          body: LayoutBuilder(
+            builder: (context, contentConstraints) {
+              final content = IndexedStack(
+                index: _selectedIndex,
+                children: _pages,
+              );
 
-          if (isDesktop) {
-            return Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: content,
-              ),
-            );
-          }
+              if (isDesktop) {
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1300),
+                    child: content,
+                  ),
+                );
+              }
 
-          return content;
-        },
-      ),
-      floatingActionButton: FloatingActionButton.small(
-        key: const Key('main_add_expense_fab'),
-        onPressed: () => context.push('/add-expense'),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
-      ),
-      bottomNavigationBar: Container(
-        height: 64,
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surface : Colors.white,
-          border: Border(
-            top: BorderSide(
-              color: isDark ? AppColors.border : AppColors.lightBorder,
-              width: 1.0,
-            ),
+              return content;
+            },
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(0, Icons.grid_view_rounded, 'Overview'),
-            _buildNavItem(1, Icons.analytics_outlined, 'Analytics'),
-            _buildNavItem(2, Icons.account_balance_rounded, 'Income'),
-            _buildNavItem(3, Icons.savings_outlined, 'Goals'),
-          ],
-        ),
-      ),
-    );
-  }
+          // Bottom Navigation for Mobile / Narrow screens only
+          bottomNavigationBar: isDesktop
+              ? null
+              : Container(
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.surface : Colors.white,
+                    border: Border(
+                      top: BorderSide(
+                        color: AppColors.goldPrimary.withValues(alpha: 0.25),
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: List.generate(_navItems.length, (index) {
+                      final item = _navItems[index];
+                      final isSelected = _selectedIndex == index;
+                      final color = isSelected
+                          ? AppColors.goldPrimary
+                          : (isDark ? AppColors.mutedText : AppColors.lightTextMuted);
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    final isSelected = _selectedIndex == index;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isSelected
-        ? AppColors.primary
-        : (isDark ? AppColors.mutedText : AppColors.lightTextMuted);
-
-    return InkWell(
-      onTap: () => _onItemTapped(index),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 20, color: color),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: AppTypography.caption.copyWith(
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
+                      return InkWell(
+                        onTap: () => _onItemTapped(index),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(item['icon'] as IconData, size: 20, color: color),
+                              const SizedBox(height: 3),
+                              Text(
+                                item['title'] == 'Google Sheets'
+                                    ? 'Sheets'
+                                    : (item['title'] == 'Income & Accounts'
+                                        ? 'Income'
+                                        : (item['title'] == 'Budgets & Goals'
+                                            ? 'Budgets'
+                                            : item['title'] as String)),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                                  color: color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+        );
+      },
     );
   }
 }

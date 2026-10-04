@@ -107,24 +107,51 @@ class GoogleSheetsController extends StateNotifier<GoogleSheetsState> {
     );
   }
 
-  Future<void> openPrebuiltTemplate() async {
-    final uri = Uri.parse(GoogleSheetsService.prebuiltTemplateUrl);
+  Future<void> createNewSpreadsheet() async {
+    final uri = Uri.parse(GoogleSheetsService.createSpreadsheetUrl);
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {
-      // Fallback
+      await launchUrl(uri);
+    }
+  }
+
+  Future<void> openPrebuiltTemplate() async {
+    final uri = Uri.parse(GoogleSheetsService.createSpreadsheetUrl);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
       await launchUrl(uri);
     }
   }
 
   Future<void> openConnectedSpreadsheet() async {
-    final target = state.config.spreadsheetUrl ?? GoogleSheetsService.prebuiltTemplateUrl;
+    final target = state.config.spreadsheetUrl != null && state.config.spreadsheetUrl!.isNotEmpty
+        ? state.config.spreadsheetUrl!
+        : GoogleSheetsService.sheetsHomeUrl;
     final uri = Uri.parse(target);
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (_) {
       await launchUrl(uri);
     }
+  }
+
+  Future<void> updateCustomSpreadsheetUrl(String url) async {
+    final cleanUrl = url.trim();
+    final updated = state.config.copyWith(
+      isConnected: cleanUrl.isNotEmpty,
+      spreadsheetUrl: cleanUrl,
+      spreadsheetId: cleanUrl.contains('/d/')
+          ? cleanUrl.split('/d/')[1].split('/')[0]
+          : 'custom_finpilot_sheet',
+      lastSyncTime: DateTime.now(),
+    );
+    await _service.saveConfig(updated);
+    state = state.copyWith(
+      config: updated,
+      successMessage: 'Google Sheet linked successfully! Ready for live synchronization.',
+    );
   }
 
   Future<void> toggleAutoSync(bool enabled) async {
@@ -135,5 +162,13 @@ class GoogleSheetsController extends StateNotifier<GoogleSheetsState> {
 
   String getPrebuiltCsvData() {
     return _service.generatePrebuiltTemplateCsv();
+  }
+
+  String getPrebuiltTsvData() {
+    return _service.generatePrebuiltTemplateTsv();
+  }
+
+  String getLiveTransactionsCsv(List<Map<String, dynamic>> items) {
+    return _service.generateLiveTransactionsCsv(items);
   }
 }

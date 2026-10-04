@@ -12,13 +12,11 @@ class GoogleSheetsService {
   static const String _boxName = 'google_sheets_config_box';
   static const String _configKey = 'current_config';
 
-  // Standard official template link allowing users to copy the prebuilt spreadsheet in 1 click
-  static const String prebuiltTemplateUrl =
-      'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/copy?usp=sharing';
-
-  // Direct create link with predefined sheets
-  static const String newSpreadsheetUrl =
-      'https://docs.google.com/spreadsheets/create?title=FinPilot+2.0+Personal+Finance';
+  // Official Google Sheets direct creation URL (opens fresh spreadsheet in user's account)
+  static const String createSpreadsheetUrl = 'https://sheets.new';
+  static const String sheetsHomeUrl = 'https://docs.google.com/spreadsheets/u/0/';
+  static const String prebuiltTemplateUrl = 'https://sheets.new';
+  static const String newSpreadsheetUrl = 'https://sheets.new';
 
   Future<Box> _getBox() async {
     if (!Hive.isBoxOpen(_boxName)) {
@@ -94,5 +92,35 @@ Subscription,Amount (INR),Frequency,Next Due Date,Account,Status,Reminder (24h)
 Spotify Premium,149,MONTHLY,2026-10-09,HDFC Credit Card,ACTIVE,YES
 Netflix 4K,649,MONTHLY,2026-10-16,HDFC Credit Card,ACTIVE,YES
 Airtel Fiber Gigabit,1179,MONTHLY,2026-10-22,SBI Savings,ACTIVE,YES''';
+  }
+
+  /// Generates Tab-Separated Values (TSV) which pastes directly into Google Sheets cells across rows and columns
+  String generatePrebuiltTemplateTsv() {
+    return 'Metric\tFormula / Value\tNotes\n'
+        'Total Net Worth\t=SUM(Accounts!D2:D20) - Accounts!D3\tAssets minus Credit Card Liabilities\n'
+        'Monthly Gross Income\t=SUM(Income!D2:D100)\tTotal earned income\n'
+        'Monthly Expenses\t=SUM(Expenses!D2:D500)\tTotal categorized spending\n'
+        'Monthly Net Savings\t=B2 - B3\tIncome minus Expenses\n'
+        'Savings Rate %\t=IF(B2>0, (B4/B2)*100, 0)\tFinPilot Target: >= 30%\n'
+        'Financial Health Score\t=IF(B5>=50, 92, IF(B5>=30, 78, 55))\tDeterministic 0-100 Score\n'
+        '\n'
+        'Date\tType\tDescription\tCategory\tAccount\tAmount (INR)\tCurrency\tNotes\n'
+        '2026-10-01\tIncome\tMonthly Salary Credit\tSalary\tSBI Savings\t65000\tINR\tPrimary employer credit\n'
+        '2026-10-02\tExpense\tLunch with Colleagues\tFood & Dining\tCash Wallet\t240\tINR\tSwiggy delivery\n'
+        '2026-10-02\tExpense\tSupermarket Grocery\tShopping\tHDFC Credit Card\t4250\tINR\tGrocery restock\n'
+        '2026-10-03\tExpense\tVehicle Petrol Refill\tTransport\tHDFC Credit Card\t1800\tINR\tHP fuel\n'
+        '2026-10-04\tTransfer\tATM Cash Withdrawal\tTransfer\tSBI Savings\t5000\tINR\tSBI ATM cash\n'
+        '2026-10-04\tExpense\tSpotify Premium Duo\tEntertainment\tHDFC Credit Card\t149\tINR\tRecurring monthly\n'
+        '2026-10-04\tExpense\tNetflix 4K Ultra\tEntertainment\tHDFC Credit Card\t649\tINR\tRecurring monthly\n';
+  }
+
+  /// Generates real transactions CSV from application data
+  String generateLiveTransactionsCsv(List<Map<String, dynamic>> items) {
+    final buffer = StringBuffer();
+    buffer.writeln('Date,Type,Description,Category,Account,Amount,Currency');
+    for (final item in items) {
+      buffer.writeln('${item['date'] ?? ''},${item['type'] ?? 'Expense'},"${item['description'] ?? ''}","${item['category'] ?? ''}","${item['account'] ?? 'Cash'}",${item['amount'] ?? 0},INR');
+    }
+    return buffer.toString();
   }
 }
