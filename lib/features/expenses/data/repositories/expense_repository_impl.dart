@@ -52,7 +52,7 @@ class ExpenseRepositoryImpl implements ExpenseRepository {
         await _localDataSource.saveAllExpenses(remoteModels);
         return remoteModels;
       }
-      return _localDataSource.getExpenses(targetUser);
+      return await _localDataSource.getExpenses(targetUser);
     } catch (_) {
       return _localDataSource.getExpenses(targetUser);
     }

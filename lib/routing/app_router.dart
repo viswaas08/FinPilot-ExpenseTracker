@@ -19,6 +19,7 @@ import 'package:expense_tracker/features/settings/presentation/screens/settings_
 import 'package:expense_tracker/features/analytics/presentation/screens/analytics_dashboard_screen.dart';
 import 'package:expense_tracker/features/income/presentation/screens/income_tracker_screen.dart';
 import 'package:expense_tracker/features/pricing/presentation/screens/pricing_plans_screen.dart';
+import 'package:expense_tracker/features/google_sheets/presentation/screens/google_sheets_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
@@ -173,6 +174,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const PricingPlansScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/google-sheets',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const GoogleSheetsScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
               position: Tween<Offset>(

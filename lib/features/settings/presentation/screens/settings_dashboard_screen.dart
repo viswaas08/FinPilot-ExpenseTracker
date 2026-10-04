@@ -315,23 +315,126 @@ class SettingsDashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 18),
 
-            // 7. Online Deployment & Cloud Sync Card
+            // 7. Google Sheets Integration & Prebuilt Template Card
+            LiquidGlassCard(
+              borderRadius: 16.0,
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F9D58).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.table_chart_rounded, color: Color(0xFF0F9D58), size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Google Sheets Sync',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: textColor,
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0F9D58).withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Text(
+                                    'TEMPLATE READY',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF0F9D58),
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Prebuilt 6-tab spreadsheet template with live sync',
+                              style: TextStyle(fontSize: 12, color: subTextColor, decoration: TextDecoration.none),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Connect your Google Sheet or use our prebuilt FinPilot Finance Template (Dashboard, Transactions, Accounts, Budgets, Goals, Subscriptions) with automated Excel/Sheets formulas.',
+                    style: TextStyle(fontSize: 12, color: subTextColor, height: 1.4, decoration: TextDecoration.none),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => context.push('/google-sheets'),
+                      icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                      label: const Text('Open Google Sheets Hub & Template', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0F9D58),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // 8. Online Deployment & Cloud Sync Card
             const OnlineDeploymentCard(),
             const SizedBox(height: 18),
 
-            // 8. Danger Zone Card (Reset All Application Data)
+            // 9. Danger Zone Card (Reset All Application Data)
             DangerZoneCard(
               isResetting: settingsState.isResetting,
               onResetAllData: () => controller.resetAllData(),
             ),
             const SizedBox(height: 18),
 
-            // 9. Navigation Shortcuts (Notifications, Recurring, Categories)
+            // 10. Navigation Shortcuts
             LiquidGlassCard(
               borderRadius: 16.0,
               padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
+                  ListTile(
+                    leading: const Icon(Icons.table_chart_rounded, color: Color(0xFF0F9D58)),
+                    title: Text(
+                      'Google Sheets & Prebuilt Template',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    subtitle: Text('Cloud sync & copy prebuilt sheet', style: TextStyle(fontSize: 12, color: subTextColor, decoration: TextDecoration.none)),
+                    trailing: Icon(Icons.chevron_right, color: subTextColor),
+                    onTap: () => context.push('/google-sheets'),
+                  ),
+                  const Divider(height: 12),
                   ListTile(
                     leading: const Icon(Icons.notifications_active_outlined, color: AppColors.primary),
                     title: Text(

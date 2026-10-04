@@ -188,9 +188,79 @@ class _PersonalFinanceDashboardScreenState
                                 _buildLaunchTile(context, Icons.savings_rounded, 'Savings', const Color(0xFFA855F7), '/savings-goals'),
                                 _buildLaunchTile(context, Icons.account_balance_wallet_rounded, 'Budgets', const Color(0xFFF59E0B), '/budget'),
                                 _buildLaunchTile(context, Icons.history_toggle_off_rounded, 'Recurring', const Color(0xFFEC4899), '/recurring'),
+                                _buildLaunchTile(context, Icons.table_chart_rounded, 'Sheets', const Color(0xFF0F9D58), '/google-sheets'),
                               ],
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      InkWell(
+                        onTap: () => context.push('/google-sheets'),
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: isDark ? const Color(0xFF0F9D58).withValues(alpha: 0.15) : const Color(0xFFE6F4EA),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: const Color(0xFF0F9D58).withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0F9D58),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.table_chart_rounded, color: Colors.white, size: 20),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Google Sheets Template',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w800,
+                                            color: textColor,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF0F9D58),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: const Text(
+                                            '6 TABS',
+                                            style: TextStyle(
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      'Prebuilt finance spreadsheet with formulas & cloud sync',
+                                      style: TextStyle(fontSize: 11, color: subTextColor),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Color(0xFF0F9D58)),
+                            ],
+                          ),
                         ),
                       ),
                     ],

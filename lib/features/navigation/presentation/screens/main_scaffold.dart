@@ -12,6 +12,7 @@ import 'package:expense_tracker/features/recurring/presentation/screens/recurrin
 import 'package:expense_tracker/features/categories/presentation/screens/category_management_screen.dart';
 import 'package:expense_tracker/features/settings/presentation/screens/settings_dashboard_screen.dart';
 import 'package:expense_tracker/features/notifications/presentation/screens/notification_center_screen.dart';
+import 'package:expense_tracker/features/google_sheets/presentation/screens/google_sheets_screen.dart';
 
 class MainScaffold extends ConsumerStatefulWidget {
   final Widget? child;
@@ -76,6 +77,10 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                   _buildHubTile(Icons.category_outlined, 'Categories', () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryManagementScreen()));
+                  }),
+                  _buildHubTile(Icons.table_chart_rounded, 'Google Sheets', () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const GoogleSheetsScreen()));
                   }),
                   _buildHubTile(Icons.notifications_none_rounded, 'Alerts', () {
                     Navigator.pop(context);
