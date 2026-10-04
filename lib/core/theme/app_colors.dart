@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
-  // Fintech Luxury Gold Design System Tokens
-  static const Color goldPrimary = Color(0xFFD4AF37); // Classic Metallic Gold
-  static const Color goldBright = Color(0xFFF5BD26);  // Radiant Bright Gold
-  static const Color goldLight = Color(0xFFF7DE9B);   // Soft Champagne
-  static const Color goldDark = Color(0xFFA1781E);    // Deep Burnished Gold
-  static const Color goldAccent = Color(0xFFEAB308);  // Vibrant Gold Accent
-  static const Color goldMuted = Color(0xFFCA8A04);   // Muted Gold
-  static const Color goldBorder = Color(0x55D4AF37);  // Subtle Gold Shimmer Border
-  static const Color goldGlow = Color(0x33D4AF37);    // Gold ambient glow
+  // Pleasant Fintech Blue Design System Tokens (No Neon Effects)
+  static const Color bluePrimary = Color(0xFF2563EB);   // Pleasant, trusted royal blue
+  static const Color blueHover = Color(0xFF1D4ED8);     // Deeper interactive blue
+  static const Color blueLight = Color(0xFF3B82F6);     // Soft vibrant blue
+  static const Color blueSoft = Color(0xFFEFF6FF);      // Gentle blue tint for badges/light mode
+  static const Color blueMuted = Color(0xFF60A5FA);     // Calming secondary blue
+  static const Color blueDark = Color(0xFF1E3A8A);      // Deep navy accent
 
-  // Core Theme Background & Surfaces (Obsidian & Deep Charcoal with Warm Gold Undertones)
-  static const Color background = Color(0xFF0C0E12);
-  static const Color surface = Color(0xFF141720);
-  static const Color card = Color(0xFF1A1E29);
-  static const Color elevatedSurface = Color(0xFF222736);
+  // Core Theme Background & Surfaces (Clean Slate & Midnight - No Neon)
+  static const Color background = Color(0xFF0F172A);
+  static const Color surface = Color(0xFF1E293B);
+  static const Color card = Color(0xFF1E293B);
+  static const Color elevatedSurface = Color(0xFF273549);
   
-  // Accents (Gold Brand Primary)
-  static const Color primary = Color(0xFFD4AF37);
-  static const Color primaryVariant = Color(0xFFF5BD26);
-  static const Color secondary = Color(0xFF38BDF8);
+  // Accents (Pleasant Blue Brand Primary)
+  static const Color primary = Color(0xFF2563EB);
+  static const Color primaryVariant = Color(0xFF3B82F6);
+  static const Color secondary = Color(0xFF0284C7);
   static const Color tertiary = Color(0xFFF59E0B);
   static const Color success = Color(0xFF10B981);
   static const Color warning = Color(0xFFF59E0B);
@@ -28,12 +26,12 @@ abstract class AppColors {
 
   // Text Hierarchy
   static const Color primaryText = Color(0xFFF8FAFC);
-  static const Color secondaryText = Color(0xFFA1A1AA);
-  static const Color mutedText = Color(0xFF71717A);
+  static const Color secondaryText = Color(0xFF94A3B8);
+  static const Color mutedText = Color(0xFF64748B);
 
-  // Borders & Dividers
-  static const Color border = Color(0x40D4AF37);
-  static const Color divider = Color(0x22D4AF37);
+  // Borders & Dividers (Clean & Neutral)
+  static const Color border = Color(0xFF334155);
+  static const Color divider = Color(0xFF334155);
 
   // Semantic Financial Aliases
   static const Color income = Color(0xFF10B981);
@@ -59,37 +57,49 @@ abstract class AppColors {
   static const Color darkTextMuted = mutedText;
   static const Color darkBorder = border;
 
-  // Clear Luxury Gold Light Mode
-  static const Color lightBackground = Color(0xFFFAF9F5);
+  // Pleasant Calm Light Mode
+  static const Color lightBackground = Color(0xFFF8FAFC);
   static const Color lightSurface = Colors.white;
-  static const Color lightSurfaceVariant = Color(0xFFF5F3EC);
+  static const Color lightSurfaceVariant = Color(0xFFF1F5F9);
   static const Color lightCard = Colors.white;
-  static const Color lightTextPrimary = Color(0xFF1C1917);
-  static const Color lightTextSecondary = Color(0xFF57534E);
-  static const Color lightTextMuted = Color(0xFFA8A29E);
-  static const Color lightBorder = Color(0x33D4AF37);
+  static const Color lightTextPrimary = Color(0xFF0F172A);
+  static const Color lightTextSecondary = Color(0xFF475569);
+  static const Color lightTextMuted = Color(0xFF94A3B8);
+  static const Color lightBorder = Color(0xFFE2E8F0);
 
-  // Subtle Premium Gold Panel Gradients
+  // Backward compatibility aliases mapped to pleasant blue
+  static const Color goldPrimary = bluePrimary;
+  static const Color goldBright = blueLight;
+  static const Color goldLight = blueMuted;
+  static const Color goldDark = blueHover;
+  static const Color goldAccent = blueLight;
+  static const Color goldMuted = blueMuted;
+  static const Color goldBorder = border;
+  static const Color goldGlow = Colors.transparent; // No neon glow
+
+  // Pleasant Gradients (Pure Subtle Transitions, No Neon)
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFFF5BD26), Color(0xFFD4AF37), Color(0xFFA1781E)],
+    colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient goldGradient = LinearGradient(
-    colors: [Color(0xFFF7DE9B), Color(0xFFD4AF37), Color(0xFFA1781E)],
+  static const LinearGradient blueGradient = LinearGradient(
+    colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  static const LinearGradient goldGradient = primaryGradient;
 
   static const LinearGradient goldCardGradient = LinearGradient(
-    colors: [Color(0xFF1E212B), Color(0xFF141720)],
+    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient titaniumBackgroundGradient = LinearGradient(
-    colors: [Color(0xFF141720), Color(0xFF0C0E12)],
+    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
@@ -107,7 +117,7 @@ abstract class AppColors {
   );
 
   static const LinearGradient darkCardGradient = LinearGradient(
-    colors: [Color(0xFF1E222D), Color(0xFF141720)],
+    colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

@@ -26,16 +26,9 @@ class PrebuiltTemplateCard extends StatelessWidget {
         color: isDark ? AppColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.goldPrimary.withValues(alpha: 0.35),
-          width: 1.2,
+          color: isDark ? AppColors.border : AppColors.lightBorder,
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.goldPrimary.withValues(alpha: isDark ? 0.08 : 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -51,17 +44,10 @@ class PrebuiltTemplateCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        gradient: AppColors.goldGradient,
+                        color: AppColors.bluePrimary,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.goldPrimary.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
                       ),
-                      child: const Icon(Icons.table_chart_rounded, color: Colors.black, size: 22),
+                      child: const Icon(Icons.table_chart_rounded, color: Colors.white, size: 22),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -71,10 +57,10 @@ class PrebuiltTemplateCard extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                'FinPilot Master Sheet Template',
+                                'FinPilot Google Sheets Template',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   color: textColor,
                                   letterSpacing: -0.3,
                                 ),
@@ -83,20 +69,19 @@ class PrebuiltTemplateCard extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppColors.goldPrimary.withValues(alpha: 0.15),
+                                  color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                                   borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
-                                    color: AppColors.goldPrimary.withValues(alpha: 0.4),
+                                    color: AppColors.bluePrimary.withValues(alpha: 0.3),
                                     width: 0.8,
                                   ),
                                 ),
                                 child: const Text(
-                                  'PREBUILT & VERIFIED',
+                                  'PREBUILT',
                                   style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.goldPrimary,
-                                    letterSpacing: 0.5,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.bluePrimary,
                                   ),
                                 ),
                               ),
@@ -104,7 +89,7 @@ class PrebuiltTemplateCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'One-click create, copy or download with pre-programmed financial formulas.',
+                            'Pre-configured multi-tab spreadsheet schema with formula calculations.',
                             style: TextStyle(fontSize: 12, color: subTextColor),
                           ),
                         ],
@@ -122,12 +107,12 @@ class PrebuiltTemplateCard extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildSheetChip(context, '🏛 Net Worth Hub', '=SUM(Assets) - Liabilities'),
-              _buildSheetChip(context, '💳 Multi-Accounts', 'Bank, Credit & Investments'),
-              _buildSheetChip(context, '📜 Transactions Log', 'Date, Amount, Category, Tags'),
-              _buildSheetChip(context, '🎯 Monthly Budgets', '=SUMIFS(Spent, Category)'),
-              _buildSheetChip(context, '🏆 Savings Goals', 'Automated Progress % Bar'),
-              _buildSheetChip(context, '🔄 Subscriptions', '24h Due Date Alert Matrix'),
+              _buildSheetChip(context, 'Net Worth Hub', '=SUM(Assets) - Liabilities'),
+              _buildSheetChip(context, 'Multi-Accounts', 'Bank, Cash, Cards'),
+              _buildSheetChip(context, 'Transactions Log', 'Date, Amount, Category'),
+              _buildSheetChip(context, 'Monthly Budgets', '=SUMIFS(Spent, Category)'),
+              _buildSheetChip(context, 'Savings Goals', 'Progress % Formula'),
+              _buildSheetChip(context, 'Subscriptions', 'Recurring Schedule'),
             ],
           ),
           const SizedBox(height: 18),
@@ -139,18 +124,18 @@ class PrebuiltTemplateCard extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 onPressed: onOpenTemplate,
-                icon: const Icon(Icons.add_to_drive_rounded, size: 16, color: Colors.black),
+                icon: const Icon(Icons.add_to_drive_rounded, size: 16, color: Colors.white),
                 label: const Text(
                   'Create in Google Sheets (sheets.new)',
                   style: TextStyle(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     fontSize: 13,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.goldPrimary,
-                  foregroundColor: Colors.black,
+                  backgroundColor: AppColors.bluePrimary,
+                  foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
@@ -158,34 +143,34 @@ class PrebuiltTemplateCard extends StatelessWidget {
               ),
               OutlinedButton.icon(
                 onPressed: onCopyTsv ?? onCopyCsv,
-                icon: const Icon(Icons.copy_rounded, size: 16, color: AppColors.goldPrimary),
+                icon: const Icon(Icons.copy_rounded, size: 16, color: AppColors.bluePrimary),
                 label: const Text(
-                  'Copy Formatted Sheet (for Ctrl+V)',
+                  'Copy Formatted (Ctrl+V into Sheet)',
                   style: TextStyle(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     fontSize: 12,
-                    color: AppColors.goldPrimary,
+                    color: AppColors.bluePrimary,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.goldPrimary.withValues(alpha: 0.6)),
+                  side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                 ),
               ),
               OutlinedButton.icon(
                 onPressed: onCopyCsv,
-                icon: const Icon(Icons.file_download_outlined, size: 16, color: AppColors.goldPrimary),
+                icon: const Icon(Icons.file_download_outlined, size: 16, color: AppColors.bluePrimary),
                 label: const Text(
                   'Download Template (.csv)',
                   style: TextStyle(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     fontSize: 12,
-                    color: AppColors.goldPrimary,
+                    color: AppColors.bluePrimary,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.goldPrimary.withValues(alpha: 0.6)),
+                  side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                 ),
@@ -202,10 +187,10 @@ class PrebuiltTemplateCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
+        color: isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: AppColors.goldPrimary.withValues(alpha: isDark ? 0.25 : 0.15),
+          color: isDark ? AppColors.border : AppColors.lightBorder,
           width: 0.8,
         ),
       ),
@@ -216,7 +201,7 @@ class PrebuiltTemplateCard extends StatelessWidget {
             title,
             style: TextStyle(
               fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
@@ -224,10 +209,10 @@ class PrebuiltTemplateCard extends StatelessWidget {
           Text(
             subtitle,
             style: const TextStyle(
-              fontSize: 9,
+              fontSize: 9.5,
               fontFamily: 'monospace',
-              color: AppColors.goldPrimary,
-              fontWeight: FontWeight.w600,
+              color: AppColors.blueLight,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

@@ -10,6 +10,7 @@ import 'package:expense_tracker/features/budget/presentation/controllers/budget_
 import 'package:expense_tracker/features/expenses/presentation/controllers/expense_controller.dart';
 import 'package:expense_tracker/features/google_sheets/presentation/controllers/google_sheets_controller.dart';
 import 'package:expense_tracker/features/savings_goals/presentation/controllers/savings_goal_controller.dart';
+import 'package:expense_tracker/features/savings_goals/domain/entities/savings_goal_entity.dart';
 
 class PersonalFinanceDashboardScreen extends ConsumerWidget {
   const PersonalFinanceDashboardScreen({super.key});
@@ -19,18 +20,18 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.black, size: 20),
+            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.black, fontSize: 13),
+                style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
               ),
             ),
           ],
         ),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.goldPrimary,
+        backgroundColor: AppColors.bluePrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
@@ -45,19 +46,17 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
     final sheetsState = ref.watch(googleSheetsControllerProvider);
     final sheetsController = ref.read(googleSheetsControllerProvider.notifier);
 
-    final userName = authState.user?.displayName ?? 'Viswaa S';
+    final userName = authState.user?.displayName ?? 'My Financial Portfolio';
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary;
     final subTextColor = isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary;
 
-    final totalIncome = expenseState.totalIncome > 0 ? expenseState.totalIncome : 65000.0;
+    // Real User Data from local storage & cloud - NO fake/demo numbers
+    final totalIncome = expenseState.totalIncome;
     final totalExpense = expenseState.totalExpense;
-    final netSavings = (totalIncome - totalExpense).clamp(0.0, double.infinity);
-    final totalLimit = (budgetState.activeBudget?.totalLimit ?? 0.0) > 0
-        ? budgetState.activeBudget!.totalLimit
-        : 25000.0;
-    final savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).clamp(0.0, 100.0) : 0.0;
-    final netWorth = totalIncome * 2.5 - totalExpense;
+    final netBalance = totalIncome - totalExpense;
+    final totalLimit = budgetState.activeBudget?.totalLimit ?? 0.0;
+    final savingsRate = totalIncome > 0 ? (((totalIncome - totalExpense) / totalIncome) * 100).clamp(0.0, 100.0) : 0.0;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -72,7 +71,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Clear Gold Welcome & Quick Action Header
+              // 1. Pleasant Blue Welcome & Action Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,28 +83,31 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                         Row(
                           children: [
                             Text(
-                              'Welcome back, $userName',
+                              userName,
                               style: TextStyle(
-                                fontSize: isDesktop ? 26 : 20,
-                                fontWeight: FontWeight.w900,
+                                fontSize: isDesktop ? 24 : 19,
+                                fontWeight: FontWeight.w700,
                                 color: textColor,
-                                letterSpacing: -0.5,
+                                letterSpacing: -0.4,
                               ),
                             ),
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                gradient: AppColors.goldGradient,
+                                color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                                 borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: AppColors.bluePrimary.withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
                               ),
                               child: const Text(
-                                'PRO GOLD',
+                                'OFFLINE READY',
                                 style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.black,
-                                  letterSpacing: 0.8,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.bluePrimary,
                                 ),
                               ),
                             ),
@@ -113,11 +115,11 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Your real-time wealth intelligence and live Google Sheets portfolio.',
+                          'Personal finance management with local storage and Google Sheets integration.',
                           style: TextStyle(
                             fontSize: 13,
                             color: subTextColor,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
@@ -129,30 +131,31 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                     children: [
                       OutlinedButton.icon(
                         onPressed: () => context.push('/income'),
-                        icon: const Icon(Icons.add_circle_outline_rounded, size: 16, color: AppColors.goldPrimary),
+                        icon: const Icon(Icons.add_circle_outline_rounded, size: 16, color: AppColors.bluePrimary),
                         label: const Text(
                           '+ Income',
-                          style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.goldPrimary, fontSize: 13),
+                          style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.bluePrimary, fontSize: 13),
                         ),
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: AppColors.goldPrimary.withValues(alpha: 0.5)),
+                          side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.4)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
                       ),
                       ElevatedButton.icon(
                         onPressed: () => context.push('/add-expense'),
-                        icon: const Icon(Icons.add_rounded, color: Colors.black, size: 18),
+                        icon: const Icon(Icons.add_rounded, color: Colors.white, size: 18),
                         label: const Text(
                           'Add Expense',
                           style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                             fontSize: 13,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.goldPrimary,
+                          backgroundColor: AppColors.bluePrimary,
+                          foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
@@ -164,16 +167,16 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
-              // 2. Clear Gold Financial KPI Cards (4 High Clarity Cards)
+              // 2. Real Financial KPI Cards (Clean Blue, Zero Fake Data)
               isDesktop
                   ? Row(
                       children: [
                         Expanded(
-                          child: _buildGoldKpiCard(
-                            title: 'Total Net Worth',
-                            amount: CurrencyFormatter.format(netWorth),
-                            trend: '+12.4% MoM',
-                            isPositive: true,
+                          child: _buildKpiCard(
+                            title: 'Net Balance',
+                            amount: CurrencyFormatter.format(netBalance),
+                            trend: netBalance >= 0 ? 'Surplus' : 'Deficit',
+                            isPositive: netBalance >= 0,
                             icon: Icons.account_balance_rounded,
                             isHighlighted: true,
                             isDark: isDark,
@@ -183,11 +186,11 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 14),
                         Expanded(
-                          child: _buildGoldKpiCard(
-                            title: 'Monthly Income',
+                          child: _buildKpiCard(
+                            title: 'Total Income',
                             amount: CurrencyFormatter.format(totalIncome),
-                            trend: 'Salary & Investments',
-                            isPositive: true,
+                            trend: totalIncome > 0 ? 'Recorded' : 'No entries yet',
+                            isPositive: totalIncome > 0,
                             icon: Icons.trending_up_rounded,
                             isHighlighted: false,
                             isDark: isDark,
@@ -197,10 +200,12 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 14),
                         Expanded(
-                          child: _buildGoldKpiCard(
-                            title: 'Monthly Spending',
+                          child: _buildKpiCard(
+                            title: 'Total Expenses',
                             amount: CurrencyFormatter.format(totalExpense),
-                            trend: '${((totalExpense / totalLimit) * 100).toStringAsFixed(0)}% of budget',
+                            trend: totalLimit > 0
+                                ? '${((totalExpense / totalLimit) * 100).toStringAsFixed(0)}% of budget'
+                                : '${expenseState.expenses.length} transactions',
                             isPositive: false,
                             icon: Icons.trending_down_rounded,
                             isHighlighted: false,
@@ -211,11 +216,11 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 14),
                         Expanded(
-                          child: _buildGoldKpiCard(
-                            title: 'Net Savings',
-                            amount: CurrencyFormatter.format(netSavings),
-                            trend: 'Savings rate ${savingsRate.toStringAsFixed(0)}%',
-                            isPositive: true,
+                          child: _buildKpiCard(
+                            title: 'Savings Rate',
+                            amount: '${savingsRate.toStringAsFixed(1)}%',
+                            trend: totalIncome > 0 ? 'Of gross income' : 'No income recorded',
+                            isPositive: savingsRate >= 20,
                             icon: Icons.savings_outlined,
                             isHighlighted: false,
                             isDark: isDark,
@@ -230,11 +235,11 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: _buildGoldKpiCard(
-                                title: 'Net Worth',
-                                amount: CurrencyFormatter.format(netWorth),
-                                trend: '+12.4% MoM',
-                                isPositive: true,
+                              child: _buildKpiCard(
+                                title: 'Net Balance',
+                                amount: CurrencyFormatter.format(netBalance),
+                                trend: netBalance >= 0 ? 'Surplus' : 'Deficit',
+                                isPositive: netBalance >= 0,
                                 icon: Icons.account_balance_rounded,
                                 isHighlighted: true,
                                 isDark: isDark,
@@ -244,11 +249,11 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: _buildGoldKpiCard(
+                              child: _buildKpiCard(
                                 title: 'Income',
                                 amount: CurrencyFormatter.format(totalIncome),
-                                trend: 'Active',
-                                isPositive: true,
+                                trend: totalIncome > 0 ? 'Recorded' : 'Empty',
+                                isPositive: totalIncome > 0,
                                 icon: Icons.trending_up_rounded,
                                 isHighlighted: false,
                                 isDark: isDark,
@@ -262,10 +267,10 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: _buildGoldKpiCard(
-                                title: 'Spending',
+                              child: _buildKpiCard(
+                                title: 'Expenses',
                                 amount: CurrencyFormatter.format(totalExpense),
-                                trend: '${((totalExpense / totalLimit) * 100).toStringAsFixed(0)}% used',
+                                trend: '${expenseState.expenses.length} entries',
                                 isPositive: false,
                                 icon: Icons.trending_down_rounded,
                                 isHighlighted: false,
@@ -276,11 +281,11 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: _buildGoldKpiCard(
-                                title: 'Savings',
-                                amount: CurrencyFormatter.format(netSavings),
-                                trend: '${savingsRate.toStringAsFixed(0)}% rate',
-                                isPositive: true,
+                              child: _buildKpiCard(
+                                title: 'Savings Rate',
+                                amount: '${savingsRate.toStringAsFixed(0)}%',
+                                trend: totalIncome > 0 ? 'Active' : 'No income',
+                                isPositive: savingsRate >= 20,
                                 icon: Icons.savings_outlined,
                                 isHighlighted: false,
                                 isDark: isDark,
@@ -294,22 +299,15 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                     ),
               const SizedBox(height: 24),
 
-              // 3. PROMINENT GOOGLE SHEETS LIVE INTEGRATION & TEMPLATE HUB (TOP PRIORITY)
+              // 3. GOOGLE SHEETS LIVE INTEGRATION & TEMPLATE HUB (PLEASANT BLUE & SLATE)
               Container(
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.surface : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppColors.goldPrimary.withValues(alpha: 0.4),
-                    width: 1.4,
+                    color: isDark ? AppColors.border : AppColors.lightBorder,
+                    width: 1.0,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.goldPrimary.withValues(alpha: isDark ? 0.08 : 0.05),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 padding: const EdgeInsets.all(22),
                 child: Column(
@@ -323,10 +321,10 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                gradient: AppColors.goldGradient,
+                                color: AppColors.bluePrimary,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.table_chart_rounded, color: Colors.black, size: 22),
+                              child: const Icon(Icons.table_chart_rounded, color: Colors.white, size: 22),
                             ),
                             const SizedBox(width: 14),
                             Column(
@@ -335,28 +333,28 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                                 Row(
                                   children: [
                                     Text(
-                                      'Google Sheets Master Integration',
+                                      'Google Sheets Integration',
                                       style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w900,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
                                         color: textColor,
                                         letterSpacing: -0.3,
                                       ),
                                     ),
                                     const SizedBox(width: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: AppColors.goldPrimary.withValues(alpha: 0.15),
+                                        color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                                         borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.4)),
+                                        border: Border.all(color: AppColors.bluePrimary.withValues(alpha: 0.3)),
                                       ),
                                       child: const Text(
-                                        '6 LIVE TABS',
+                                        '6 TABS',
                                         style: TextStyle(
                                           fontSize: 9.5,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppColors.goldPrimary,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.bluePrimary,
                                         ),
                                       ),
                                     ),
@@ -364,7 +362,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 3),
                                 Text(
-                                  'Create a new Google Sheet, download the verified template, or mirror live transactions.',
+                                  'Create a new Google Sheet, download the finance template, or mirror live transactions.',
                                   style: TextStyle(fontSize: 12, color: subTextColor),
                                 ),
                               ],
@@ -375,13 +373,13 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: sheetsState.config.isConnected
-                                ? AppColors.income.withValues(alpha: 0.15)
-                                : AppColors.goldPrimary.withValues(alpha: 0.15),
+                                ? AppColors.income.withValues(alpha: 0.12)
+                                : (isDark ? AppColors.elevatedSurface : AppColors.blueSoft),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: sheetsState.config.isConnected
-                                  ? AppColors.income.withValues(alpha: 0.4)
-                                  : AppColors.goldPrimary.withValues(alpha: 0.4),
+                                  ? AppColors.income.withValues(alpha: 0.3)
+                                  : AppColors.bluePrimary.withValues(alpha: 0.2),
                             ),
                           ),
                           child: Row(
@@ -391,7 +389,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                                 width: 7,
                                 height: 7,
                                 decoration: BoxDecoration(
-                                  color: sheetsState.config.isConnected ? AppColors.income : AppColors.goldPrimary,
+                                  color: sheetsState.config.isConnected ? AppColors.income : AppColors.bluePrimary,
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -400,8 +398,8 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                                 sheetsState.config.isConnected ? 'Connected & Active' : 'Ready to Connect',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: sheetsState.config.isConnected ? AppColors.income : AppColors.goldPrimary,
+                                  fontWeight: FontWeight.w700,
+                                  color: sheetsState.config.isConnected ? AppColors.income : AppColors.bluePrimary,
                                 ),
                               ),
                             ],
@@ -418,13 +416,14 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                       children: [
                         ElevatedButton.icon(
                           onPressed: () => sheetsController.createNewSpreadsheet(),
-                          icon: const Icon(Icons.add_to_drive_rounded, size: 16, color: Colors.black),
+                          icon: const Icon(Icons.add_to_drive_rounded, size: 16, color: Colors.white),
                           label: const Text(
                             'Open sheets.new',
-                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.goldPrimary,
+                            backgroundColor: AppColors.bluePrimary,
+                            foregroundColor: Colors.white,
                             elevation: 0,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
@@ -436,13 +435,13 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                             Clipboard.setData(ClipboardData(text: csv));
                             _showFeedback(context, 'Prebuilt FinPilot CSV copied! Paste directly into Google Sheets.');
                           },
-                          icon: const Icon(Icons.file_download_outlined, size: 16, color: AppColors.goldPrimary),
+                          icon: const Icon(Icons.file_download_outlined, size: 16, color: AppColors.bluePrimary),
                           label: const Text(
                             'Download Template (.csv)',
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.goldPrimary),
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.bluePrimary),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: AppColors.goldPrimary.withValues(alpha: 0.5)),
+                            side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                           ),
@@ -453,26 +452,26 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                             Clipboard.setData(ClipboardData(text: tsv));
                             _showFeedback(context, 'Formatted tabbed data copied! Paste directly into cell A1 in Google Sheets.');
                           },
-                          icon: const Icon(Icons.copy_rounded, size: 16, color: AppColors.goldPrimary),
+                          icon: const Icon(Icons.copy_rounded, size: 16, color: AppColors.bluePrimary),
                           label: const Text(
                             'Copy TSV (for Ctrl+V)',
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.goldPrimary),
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.bluePrimary),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: AppColors.goldPrimary.withValues(alpha: 0.5)),
+                            side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                           ),
                         ),
                         OutlinedButton.icon(
                           onPressed: () => context.push('/google-sheets'),
-                          icon: const Icon(Icons.tune_rounded, size: 16, color: AppColors.goldPrimary),
+                          icon: const Icon(Icons.tune_rounded, size: 16, color: AppColors.bluePrimary),
                           label: const Text(
                             'Open Google Sheets Hub',
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.goldPrimary),
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.bluePrimary),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: AppColors.goldPrimary.withValues(alpha: 0.5)),
+                            side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                           ),
@@ -484,12 +483,12 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
-              // 4. Clean Responsive Main Content: Recent Transactions + Budget & Goals
+              // 4. Responsive Main Content: Real Recent Transactions + Budgets & Real Goals
               if (isDesktop)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left 60%: Recent Transactions
+                    // Left 60%: Real Recent Transactions
                     Expanded(
                       flex: 3,
                       child: _buildRecentTransactionsCard(
@@ -501,12 +500,13 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    // Right 40%: Budgets & Goals
+                    // Right 40%: Real Budgets & Real Goals
                     Expanded(
                       flex: 2,
                       child: Column(
                         children: [
                           _buildBudgetUsageCard(
+                            context: context,
                             totalExpense: totalExpense,
                             totalLimit: totalLimit,
                             isDark: isDark,
@@ -515,7 +515,8 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 20),
                           _buildSavingsGoalsCard(
-                            goalsState: goalsState,
+                            context: context,
+                            goals: goalsState.goals,
                             isDark: isDark,
                             textColor: textColor,
                             subTextColor: subTextColor,
@@ -537,6 +538,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 20),
                     _buildBudgetUsageCard(
+                      context: context,
                       totalExpense: totalExpense,
                       totalLimit: totalLimit,
                       isDark: isDark,
@@ -545,7 +547,8 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 20),
                     _buildSavingsGoalsCard(
-                      goalsState: goalsState,
+                      context: context,
+                      goals: goalsState.goals,
                       isDark: isDark,
                       textColor: textColor,
                       subTextColor: subTextColor,
@@ -560,7 +563,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGoldKpiCard({
+  Widget _buildKpiCard({
     required String title,
     required String amount,
     required String trend,
@@ -577,19 +580,10 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isHighlighted
-              ? AppColors.goldPrimary
-              : AppColors.goldPrimary.withValues(alpha: isDark ? 0.25 : 0.15),
+              ? AppColors.bluePrimary.withValues(alpha: 0.6)
+              : (isDark ? AppColors.border : AppColors.lightBorder),
           width: isHighlighted ? 1.4 : 1.0,
         ),
-        boxShadow: isHighlighted
-            ? [
-                BoxShadow(
-                  color: AppColors.goldPrimary.withValues(alpha: isDark ? 0.12 : 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 3),
-                ),
-              ]
-            : null,
       ),
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -602,7 +596,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                 title,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   color: subTextColor,
                 ),
               ),
@@ -610,14 +604,14 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: isHighlighted
-                      ? AppColors.goldPrimary.withValues(alpha: 0.2)
+                      ? (isDark ? AppColors.elevatedSurface : AppColors.blueSoft)
                       : (isDark ? AppColors.card : AppColors.lightSurfaceVariant),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
                   size: 16,
-                  color: isHighlighted ? AppColors.goldPrimary : subTextColor,
+                  color: isHighlighted ? AppColors.bluePrimary : subTextColor,
                 ),
               ),
             ],
@@ -627,8 +621,8 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
             amount,
             style: TextStyle(
               fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: isHighlighted ? AppColors.goldPrimary : textColor,
+              fontWeight: FontWeight.w700,
+              color: isHighlighted ? (isDark ? Colors.white : AppColors.bluePrimary) : textColor,
               letterSpacing: -0.5,
             ),
           ),
@@ -636,17 +630,17 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
           Row(
             children: [
               Icon(
-                isPositive ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-                size: 14,
-                color: isPositive ? AppColors.income : AppColors.expense,
+                isPositive ? Icons.check_circle_outline_rounded : Icons.info_outline_rounded,
+                size: 13,
+                color: isPositive ? AppColors.income : subTextColor,
               ),
               const SizedBox(width: 4),
               Text(
                 trend,
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: isPositive ? AppColors.income : AppColors.expense,
+                  fontWeight: FontWeight.w600,
+                  color: isPositive ? AppColors.income : subTextColor,
                 ),
               ),
             ],
@@ -671,7 +665,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
         color: isDark ? AppColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.goldPrimary.withValues(alpha: 0.25),
+          color: isDark ? AppColors.border : AppColors.lightBorder,
         ),
       ),
       padding: const EdgeInsets.all(22),
@@ -683,21 +677,22 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.receipt_long_rounded, color: AppColors.goldPrimary, size: 20),
+                  const Icon(Icons.receipt_long_rounded, color: AppColors.bluePrimary, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'Recent Transactions',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
                   ),
                 ],
               ),
-              TextButton(
-                onPressed: () => context.push('/analytics'),
-                child: const Text(
-                  'View All',
-                  style: TextStyle(color: AppColors.goldPrimary, fontWeight: FontWeight.w700, fontSize: 12),
+              if (expenses.isNotEmpty)
+                TextButton(
+                  onPressed: () => context.push('/analytics'),
+                  child: const Text(
+                    'View All',
+                    style: TextStyle(color: AppColors.bluePrimary, fontWeight: FontWeight.w600, fontSize: 12),
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -707,21 +702,21 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
               child: Center(
                 child: Column(
                   children: [
-                    Icon(Icons.receipt_outlined, size: 40, color: subTextColor.withValues(alpha: 0.5)),
+                    Icon(Icons.receipt_outlined, size: 36, color: subTextColor.withValues(alpha: 0.5)),
                     const SizedBox(height: 10),
                     Text(
-                      'No transactions logged yet.',
+                      'No transactions recorded yet in local storage.',
                       style: TextStyle(fontSize: 13, color: subTextColor),
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () => context.push('/add-expense'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.goldPrimary,
-                        foregroundColor: Colors.black,
+                        backgroundColor: AppColors.bluePrimary,
+                        foregroundColor: Colors.white,
                         elevation: 0,
                       ),
-                      child: const Text('Add First Transaction', style: TextStyle(fontWeight: FontWeight.w800)),
+                      child: const Text('Add Your First Expense', style: TextStyle(fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
@@ -743,11 +738,14 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
+                        color: isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.15)),
                       ),
-                      child: const Icon(Icons.shopping_bag_outlined, size: 18, color: AppColors.goldPrimary),
+                      child: Icon(
+                        item.isIncome ? Icons.arrow_downward_rounded : Icons.shopping_bag_outlined,
+                        size: 18,
+                        color: item.isIncome ? AppColors.income : AppColors.bluePrimary,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -758,7 +756,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                             item.title,
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               color: textColor,
                             ),
                           ),
@@ -771,11 +769,11 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '-${CurrencyFormatter.format(item.amount)}',
-                      style: const TextStyle(
+                      item.isIncome ? '+${CurrencyFormatter.format(item.amount)}' : '-${CurrencyFormatter.format(item.amount)}',
+                      style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.expense,
+                        fontWeight: FontWeight.w700,
+                        color: item.isIncome ? AppColors.income : AppColors.expense,
                       ),
                     ),
                   ],
@@ -788,13 +786,15 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildBudgetUsageCard({
+    required BuildContext context,
     required double totalExpense,
     required double totalLimit,
     required bool isDark,
     required Color textColor,
     required Color subTextColor,
   }) {
-    final progress = totalLimit > 0 ? (totalExpense / totalLimit).clamp(0.0, 1.0) : 0.0;
+    final hasBudget = totalLimit > 0;
+    final progress = hasBudget ? (totalExpense / totalLimit).clamp(0.0, 1.0) : 0.0;
     final percent = (progress * 100).toInt();
 
     return Container(
@@ -802,7 +802,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
         color: isDark ? AppColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.goldPrimary.withValues(alpha: 0.25),
+          color: isDark ? AppColors.border : AppColors.lightBorder,
         ),
       ),
       padding: const EdgeInsets.all(20),
@@ -814,53 +814,80 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.pie_chart_rounded, color: AppColors.goldPrimary, size: 18),
+                  const Icon(Icons.pie_chart_rounded, color: AppColors.bluePrimary, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    'Monthly Budget Health',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textColor),
+                    'Monthly Budget',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textColor),
                   ),
                 ],
               ),
-              Text(
-                '$percent% Spent',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.goldPrimary),
-              ),
+              if (hasBudget)
+                Text(
+                  '$percent% Spent',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.bluePrimary),
+                ),
             ],
           ),
           const SizedBox(height: 14),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 10,
-              backgroundColor: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                progress > 0.85 ? AppColors.expense : AppColors.goldPrimary,
+          if (!hasBudget)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'No active monthly budget set.',
+                    style: TextStyle(fontSize: 12, color: subTextColor),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    onPressed: () => context.push('/budget'),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    ),
+                    child: const Text('Set Monthly Budget', style: TextStyle(fontSize: 12, color: AppColors.bluePrimary)),
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor: isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  progress > 0.9 ? AppColors.expense : AppColors.bluePrimary,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Spent: ${CurrencyFormatter.format(totalExpense)}',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textColor),
-              ),
-              Text(
-                'Limit: ${CurrencyFormatter.format(totalLimit)}',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: subTextColor),
-              ),
-            ],
-          ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Spent: ${CurrencyFormatter.format(totalExpense)}',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: textColor),
+                ),
+                Text(
+                  'Limit: ${CurrencyFormatter.format(totalLimit)}',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: subTextColor),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
   Widget _buildSavingsGoalsCard({
-    required dynamic goalsState,
+    required BuildContext context,
+    required List<SavingsGoalEntity> goals,
     required bool isDark,
     required Color textColor,
     required Color subTextColor,
@@ -870,7 +897,7 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
         color: isDark ? AppColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.goldPrimary.withValues(alpha: 0.25),
+          color: isDark ? AppColors.border : AppColors.lightBorder,
         ),
       ),
       padding: const EdgeInsets.all(20),
@@ -878,33 +905,71 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.flag_rounded, color: AppColors.goldPrimary, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                'Active Savings Targets',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textColor),
+              Row(
+                children: [
+                  const Icon(Icons.flag_rounded, color: AppColors.bluePrimary, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Savings Goals',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textColor),
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () => context.push('/savings-goals'),
+                child: Text(
+                  goals.isEmpty ? 'Set Goal' : 'Manage',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.bluePrimary),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _buildGoalItem('MacBook Pro M3 Max', 95000, 150000, isDark, textColor, subTextColor),
-          const SizedBox(height: 10),
-          _buildGoalItem('Emergency Runway (6M)', 220000, 300000, isDark, textColor, subTextColor),
+          if (goals.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'No savings targets set yet.',
+                      style: TextStyle(fontSize: 12, color: subTextColor),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: () => context.push('/savings-goals'),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      ),
+                      child: const Text('Add Target Goal', style: TextStyle(fontSize: 12, color: AppColors.bluePrimary)),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ...goals.take(3).map((g) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _buildRealGoalItem(g, isDark, textColor, subTextColor),
+              );
+            }),
         ],
       ),
     );
   }
 
-  Widget _buildGoalItem(
-    String title,
-    double current,
-    double target,
+  Widget _buildRealGoalItem(
+    SavingsGoalEntity goal,
     bool isDark,
     Color textColor,
     Color subTextColor,
   ) {
-    final progress = (current / target).clamp(0.0, 1.0);
+    final progress = goal.targetAmount > 0 ? (goal.savedAmount / goal.targetAmount).clamp(0.0, 1.0) : 0.0;
     final percent = (progress * 100).toInt();
 
     return Column(
@@ -913,8 +978,8 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor)),
-            Text('$percent%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.goldPrimary)),
+            Text(goal.name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textColor)),
+            Text('$percent%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.bluePrimary)),
           ],
         ),
         const SizedBox(height: 6),
@@ -923,9 +988,23 @@ class PersonalFinanceDashboardScreen extends ConsumerWidget {
           child: LinearProgressIndicator(
             value: progress,
             minHeight: 7,
-            backgroundColor: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.goldPrimary),
+            backgroundColor: isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant,
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.bluePrimary),
           ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Saved: ${CurrencyFormatter.format(goal.savedAmount)}',
+              style: TextStyle(fontSize: 10.5, color: subTextColor),
+            ),
+            Text(
+              'Target: ${CurrencyFormatter.format(goal.targetAmount)}',
+              style: TextStyle(fontSize: 10.5, color: subTextColor),
+            ),
+          ],
         ),
       ],
     );

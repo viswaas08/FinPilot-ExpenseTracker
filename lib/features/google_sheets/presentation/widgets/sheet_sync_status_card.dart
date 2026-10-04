@@ -64,16 +64,9 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
         color: isDark ? AppColors.surface : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.goldPrimary.withValues(alpha: 0.35),
-          width: 1.2,
+          color: isDark ? AppColors.border : AppColors.lightBorder,
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.goldPrimary.withValues(alpha: isDark ? 0.08 : 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -88,17 +81,17 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.goldPrimary.withValues(alpha: 0.15),
+                      color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.sync_rounded, color: AppColors.goldPrimary, size: 20),
+                    child: const Icon(Icons.sync_rounded, color: AppColors.bluePrimary, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Live Google Sheets Sync & URL Link',
+                    'Live Google Sheets Connection',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: textColor,
                       letterSpacing: -0.3,
                     ),
@@ -109,13 +102,13 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: isConnected
-                      ? AppColors.income.withValues(alpha: 0.15)
-                      : AppColors.goldPrimary.withValues(alpha: 0.15),
+                      ? AppColors.income.withValues(alpha: 0.12)
+                      : (isDark ? AppColors.elevatedSurface : AppColors.blueSoft),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isConnected
-                        ? AppColors.income.withValues(alpha: 0.4)
-                        : AppColors.goldPrimary.withValues(alpha: 0.4),
+                        ? AppColors.income.withValues(alpha: 0.3)
+                        : AppColors.bluePrimary.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -125,7 +118,7 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                       width: 7,
                       height: 7,
                       decoration: BoxDecoration(
-                        color: isConnected ? AppColors.income : AppColors.goldPrimary,
+                        color: isConnected ? AppColors.income : AppColors.bluePrimary,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -134,8 +127,8 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                       isConnected ? 'Active & Synced' : 'Ready to Connect',
                       style: TextStyle(
                         fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: isConnected ? AppColors.income : AppColors.goldPrimary,
+                        fontWeight: FontWeight.w700,
+                        color: isConnected ? AppColors.income : AppColors.bluePrimary,
                       ),
                     ),
                   ],
@@ -147,8 +140,8 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
 
           // Custom Spreadsheet URL input
           Text(
-            'Link Your Google Sheet (Paste Spreadsheet URL or ID):',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor),
+            'Link Your Google Sheet (Spreadsheet URL or ID):',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textColor),
           ),
           const SizedBox(height: 8),
           Row(
@@ -160,7 +153,7 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                     color: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: AppColors.goldPrimary.withValues(alpha: 0.3),
+                      color: isDark ? AppColors.border : AppColors.lightBorder,
                       width: 1,
                     ),
                   ),
@@ -173,7 +166,7 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                       hintStyle: TextStyle(fontSize: 12, color: subTextColor),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       border: InputBorder.none,
-                      prefixIcon: const Icon(Icons.table_view_rounded, size: 18, color: AppColors.goldPrimary),
+                      prefixIcon: const Icon(Icons.table_view_rounded, size: 18, color: AppColors.bluePrimary),
                     ),
                   ),
                 ),
@@ -189,13 +182,13 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.goldPrimary,
-                  foregroundColor: Colors.black,
+                  backgroundColor: AppColors.bluePrimary,
+                  foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                child: const Text('Save & Link', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+                child: const Text('Save & Link', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
               ),
             ],
           ),
@@ -205,10 +198,10 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
+              color: isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: AppColors.goldPrimary.withValues(alpha: 0.15),
+                color: isDark ? AppColors.border : AppColors.lightBorder,
               ),
             ),
             child: Column(
@@ -223,7 +216,7 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                         widget.config.spreadsheetId ?? 'FinPilot Master Sheet (Auto-Linked)',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: textColor,
                           fontFamily: 'monospace',
                         ),
@@ -243,8 +236,8 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                           : 'Just now',
                       style: const TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.goldPrimary,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.blueLight,
                       ),
                     ),
                   ],
@@ -264,16 +257,16 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
                       ? const SizedBox(
                           width: 14,
                           height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Icon(Icons.refresh_rounded, size: 16, color: Colors.black),
+                      : const Icon(Icons.refresh_rounded, size: 16, color: Colors.white),
                   label: Text(
                     widget.isSyncing ? 'Synchronizing...' : 'Sync Live Data Now',
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: Colors.black),
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.goldPrimary,
-                    foregroundColor: Colors.black,
+                    backgroundColor: AppColors.bluePrimary,
+                    foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsets.symmetric(vertical: 13),
@@ -283,13 +276,13 @@ class _SheetSyncStatusCardState extends State<SheetSyncStatusCard> {
               const SizedBox(width: 10),
               OutlinedButton.icon(
                 onPressed: widget.onOpenSpreadsheet,
-                icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.goldPrimary),
+                icon: const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.bluePrimary),
                 label: const Text(
                   'Open in Google Sheets',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.goldPrimary),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: AppColors.bluePrimary),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.goldPrimary.withValues(alpha: 0.6)),
+                  side: BorderSide(color: AppColors.bluePrimary.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                 ),

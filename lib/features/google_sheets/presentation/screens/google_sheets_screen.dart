@@ -42,16 +42,16 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
     final expenses = ref.read(expenseControllerProvider).expenses;
     final items = expenses.map((e) => {
       'date': e.date.toIso8601String().split('T')[0],
-      'type': 'Expense',
+      'type': e.isIncome ? 'Income' : 'Expense',
       'description': e.title,
       'category': e.category.name,
-      'account': 'Main Account',
+      'account': 'Main Wallet',
       'amount': e.amount,
     }).toList();
 
     final csv = ref.read(googleSheetsControllerProvider.notifier).getLiveTransactionsCsv(items);
     Clipboard.setData(ClipboardData(text: csv));
-    _showFeedback(context, 'Your live expenses exported to CSV and copied to clipboard ready for Google Sheets!');
+    _showFeedback(context, '${items.length} live transaction(s) exported to CSV and copied to clipboard.');
   }
 
   void _showFeedback(BuildContext context, String message) {
@@ -59,18 +59,18 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.black, size: 20),
+            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.black, fontSize: 13),
+                style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
               ),
             ),
           ],
         ),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.goldPrimary,
+        backgroundColor: AppColors.bluePrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
@@ -96,17 +96,17 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                gradient: AppColors.goldGradient,
+                color: AppColors.bluePrimary,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.table_chart_rounded, size: 20, color: Colors.black),
+              child: const Icon(Icons.table_chart_rounded, size: 20, color: Colors.white),
             ),
             const SizedBox(width: 12),
             Text(
-              'Google Sheets Integration Hub',
+              'Google Sheets Hub',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: textColor,
               ),
             ),
@@ -115,10 +115,10 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
         actions: [
           TextButton.icon(
             onPressed: () => controller.createNewSpreadsheet(),
-            icon: const Icon(Icons.add_to_drive_rounded, size: 16, color: AppColors.goldPrimary),
+            icon: const Icon(Icons.add_to_drive_rounded, size: 16, color: AppColors.bluePrimary),
             label: const Text(
               'sheets.new',
-              style: TextStyle(color: AppColors.goldPrimary, fontWeight: FontWeight.w800),
+              style: TextStyle(color: AppColors.bluePrimary, fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(width: 12),
@@ -134,20 +134,20 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.goldPrimary.withValues(alpha: 0.15),
+                  color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.4)),
+                  border: Border.all(color: AppColors.bluePrimary.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle_outline_rounded, color: AppColors.goldPrimary, size: 20),
+                    const Icon(Icons.check_circle_outline_rounded, color: AppColors.bluePrimary, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         state.successMessage!,
                         style: TextStyle(
                           color: textColor,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
                       ),
@@ -184,7 +184,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surface : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.35)),
+                border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
               ),
               padding: const EdgeInsets.all(18),
               child: Row(
@@ -192,10 +192,10 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.goldPrimary.withValues(alpha: 0.15),
+                      color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.file_upload_outlined, color: AppColors.goldPrimary, size: 22),
+                    child: const Icon(Icons.file_upload_outlined, color: AppColors.bluePrimary, size: 22),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -203,12 +203,12 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Export My Live FinPilot Data',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textColor),
+                          'Export Live User Transactions',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textColor),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Dump your current expenses and balance logs directly to Google Sheets CSV format.',
+                          'Export your local storage transactions directly into Google Sheets CSV format.',
                           style: TextStyle(fontSize: 12, color: subTextColor),
                         ),
                       ],
@@ -217,13 +217,14 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                   const SizedBox(width: 12),
                   ElevatedButton.icon(
                     onPressed: () => _exportLiveExpenses(context, ref),
-                    icon: const Icon(Icons.copy_all_rounded, size: 16, color: Colors.black),
+                    icon: const Icon(Icons.copy_all_rounded, size: 16, color: Colors.white),
                     label: const Text(
                       'Export Live CSV',
-                      style: TextStyle(fontWeight: FontWeight.w800, color: Colors.black, fontSize: 12),
+                      style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 12),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.goldPrimary,
+                      backgroundColor: AppColors.bluePrimary,
+                      foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -234,12 +235,12 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
             ),
             const SizedBox(height: 20),
 
-            // 4. Interactive Template Multi-Tab Viewer
+            // 4. Interactive Template Multi-Tab Architecture Schema
             Container(
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surface : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.35)),
+                border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
               ),
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -250,11 +251,11 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.preview_rounded, color: AppColors.goldPrimary, size: 20),
+                          const Icon(Icons.preview_rounded, color: AppColors.bluePrimary, size: 20),
                           const SizedBox(width: 8),
                           Text(
-                            'Interactive Template Architecture Preview',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
+                            'Template Schema & Architecture',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
                           ),
                         ],
                       ),
@@ -262,8 +263,8 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                         'TAB ${_selectedPreviewTab + 1} OF ${_tabs.length}',
                         style: const TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.goldPrimary,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.blueLight,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -286,22 +287,22 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppColors.goldPrimary
-                                    : (isDark ? AppColors.card : AppColors.lightSurfaceVariant),
+                                    ? AppColors.bluePrimary
+                                    : (isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
                                   color: isSelected
-                                      ? AppColors.goldPrimary
-                                      : AppColors.goldPrimary.withValues(alpha: 0.2),
+                                      ? AppColors.bluePrimary
+                                      : (isDark ? AppColors.border : AppColors.lightBorder),
                                 ),
                               ),
                               child: Text(
                                 _tabs[index],
                                 style: TextStyle(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                   color: isSelected
-                                      ? Colors.black
+                                      ? Colors.white
                                       : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
                                 ),
                               ),
@@ -313,7 +314,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Table content preview based on selected tab
+                  // Table content schema based on selected tab
                   _buildPreviewTable(isDark, textColor, subTextColor),
                 ],
               ),
@@ -325,7 +326,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surface : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.35)),
+                border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
               ),
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -333,13 +334,13 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.functions_rounded, color: AppColors.goldPrimary, size: 20),
+                      const Icon(Icons.functions_rounded, color: AppColors.bluePrimary, size: 20),
                       const SizedBox(width: 8),
                       Text(
                         'Prebuilt Formula Matrix (Google Sheets Compatible)',
                         style: TextStyle(
                           fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: textColor,
                         ),
                       ),
@@ -347,7 +348,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'These exact formulas are automatically embedded in the prebuilt template for real-time calculation:',
+                    'These formulas are pre-embedded in the template for automated balance and metric calculation:',
                     style: TextStyle(fontSize: 12, color: subTextColor, height: 1.4),
                   ),
                   const SizedBox(height: 14),
@@ -355,7 +356,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                   _buildFormulaRow('Savings Rate %', '=IF(Income>0, ((Income-Expense)/Income)*100, 0)', isDark),
                   _buildFormulaRow('Category Spent', '=SUMIFS(Transactions!Amount, Category, "Food")', isDark),
                   _buildFormulaRow('Credit Card Util %', '=(Used_Balance / Credit_Limit) * 100', isDark),
-                  _buildFormulaRow('Goal Target Date Countdown', '=DAYS(Target_Date, TODAY())', isDark),
+                  _buildFormulaRow('Goal Countdown', '=DAYS(Target_Date, TODAY())', isDark),
                 ],
               ),
             ),
@@ -370,67 +371,69 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
     switch (_selectedPreviewTab) {
       case 0:
         return _buildTableContent(
-          headers: ['Metric', 'Formula / Value', 'Notes'],
+          headers: ['Metric', 'Formula / Value', 'Description'],
           rows: [
-            ['Total Net Worth', '=SUM(Accounts!D2:D20) - Accounts!D3', 'Assets minus Credit Liabilities'],
-            ['Monthly Gross Income', '=SUM(Income!D2:D100)', 'Total earned salary & investments'],
-            ['Monthly Expenses', '=SUM(Expenses!D2:D500)', 'Categorized living expenses'],
+            ['Total Net Worth', '=SUM(Accounts!D2:D20) - Accounts!D3', 'Assets minus credit liabilities'],
+            ['Monthly Gross Income', '=SUM(Income!D2:D100)', 'Total earned salary & revenue'],
+            ['Monthly Expenses', '=SUM(Expenses!D2:D500)', 'Living expenses by category'],
             ['Monthly Net Savings', '=Income - Expenses', 'Capital surplus'],
-            ['Savings Rate %', '=IF(Income>0, (Savings/Income)*100, 0)', 'FinPilot recommended >= 30%'],
+            ['Savings Rate %', '=IF(Income>0, (Savings/Income)*100, 0)', 'Target rate >= 20%'],
           ],
           isDark: isDark,
         );
       case 1:
         return _buildTableContent(
-          headers: ['Date', 'Type', 'Description', 'Category', 'Account', 'Amount'],
+          headers: ['Column', 'Type', 'Format Example', 'Formula / Validation'],
           rows: [
-            ['2026-10-01', 'Income', 'Monthly Salary Credit', 'Salary', 'SBI Savings', '₹65,000'],
-            ['2026-10-02', 'Expense', 'Lunch with Colleagues', 'Food & Dining', 'Cash Wallet', '₹240'],
-            ['2026-10-02', 'Expense', 'Supermarket Grocery', 'Shopping', 'HDFC Card', '₹4,250'],
-            ['2026-10-03', 'Expense', 'Vehicle Petrol Refill', 'Transport', 'HDFC Card', '₹1,800'],
-            ['2026-10-04', 'Expense', 'Spotify Premium Duo', 'Entertainment', 'HDFC Card', '₹149'],
+            ['Date', 'DATE', 'YYYY-MM-DD', 'Date validation'],
+            ['Type', 'STRING', 'Income / Expense', 'Dropdown list'],
+            ['Description', 'STRING', 'Grocery Store / Salary', 'Text entry'],
+            ['Category', 'STRING', 'Food & Dining, Transport', 'Category lookup'],
+            ['Account', 'STRING', 'Bank, Credit Card, Cash', 'Accounts lookup'],
+            ['Amount', 'CURRENCY', '1500.00', 'Numeric decimal format'],
           ],
           isDark: isDark,
         );
       case 2:
         return _buildTableContent(
-          headers: ['Account Name', 'Type', 'Institution', 'Current Balance', 'Credit Limit', 'Status'],
+          headers: ['Field', 'Supported Types', 'Formula Used'],
           rows: [
-            ['SBI Primary Savings', 'BANK', 'State Bank of India', '₹68,450', '—', 'ACTIVE'],
-            ['HDFC Regalia Card', 'CREDIT_CARD', 'HDFC Bank', '₹27,450', '₹1,00,000', 'ACTIVE'],
-            ['Cash Wallet', 'CASH', 'Cash in Hand', '₹8,680', '—', 'ACTIVE'],
-            ['Zerodha Stocks & MF', 'INVESTMENT', 'Zerodha Broking', '₹1,75,000', '—', 'ACTIVE'],
+            ['Account Name', 'Bank, Credit Card, Investment, Cash', 'Unique Identifier'],
+            ['Current Balance', 'Positive / Negative Currency', 'Manual / Synced'],
+            ['Credit Limit', 'Credit Cards only', 'Positive Currency'],
+            ['Utilization %', 'Formula', '=(Used_Balance / Credit_Limit) * 100'],
           ],
           isDark: isDark,
         );
       case 3:
         return _buildTableContent(
-          headers: ['Category', 'Period', 'Monthly Limit', 'Spent', 'Remaining', 'Utilization %'],
+          headers: ['Category', 'Period', 'Monthly Limit', 'Formula Spent', 'Remaining'],
           rows: [
-            ['Food & Dining', 'MONTHLY', '₹6,000', '₹3,450', '₹2,550', '57.5%'],
-            ['Shopping & Retail', 'MONTHLY', '₹10,000', '₹4,250', '₹5,750', '42.5%'],
-            ['Transport & Fuel', 'MONTHLY', '₹4,000', '₹1,800', '₹2,200', '45.0%'],
-            ['Entertainment', 'MONTHLY', '₹2,500', '₹798', '₹1,702', '31.9%'],
+            ['Food & Dining', 'MONTHLY', 'Budget Limit', '=SUMIFS(Transactions!Amount, "Food")', '=Limit - Spent'],
+            ['Shopping', 'MONTHLY', 'Budget Limit', '=SUMIFS(Transactions!Amount, "Shopping")', '=Limit - Spent'],
+            ['Transport', 'MONTHLY', 'Budget Limit', '=SUMIFS(Transactions!Amount, "Transport")', '=Limit - Spent'],
+            ['Entertainment', 'MONTHLY', 'Budget Limit', '=SUMIFS(Transactions!Amount, "Entertainment")', '=Limit - Spent'],
           ],
           isDark: isDark,
         );
       case 4:
         return _buildTableContent(
-          headers: ['Goal Name', 'Target Amount', 'Current Saved', 'Target Date', 'Progress %'],
+          headers: ['Goal Field', 'Data Type', 'Formula Calculation'],
           rows: [
-            ['MacBook Pro M3 Max', '₹1,50,000', '₹95,000', '2026-12-31', '63.3%'],
-            ['Emergency Runway (6M)', '₹3,00,000', '₹2,20,000', '2027-03-31', '73.3%'],
-            ['Japan Holiday Trip', '₹2,00,000', '₹60,000', '2027-05-15', '30.0%'],
+            ['Target Name', 'Text', 'User defined'],
+            ['Target Amount', 'Currency', 'User defined'],
+            ['Saved Amount', 'Currency', 'Manual / Account linked'],
+            ['Progress %', 'Percentage', '=(Saved_Amount / Target_Amount) * 100'],
           ],
           isDark: isDark,
         );
       default:
         return _buildTableContent(
-          headers: ['Subscription', 'Amount', 'Frequency', 'Next Due Date', 'Account', '24h Alert'],
+          headers: ['Subscription Field', 'Frequency', 'Next Due Date', 'Status'],
           rows: [
-            ['Spotify Premium Duo', '₹149', 'MONTHLY', '2026-10-09', 'HDFC Card', 'YES'],
-            ['Netflix 4K Ultra', '₹649', 'MONTHLY', '2026-10-16', 'HDFC Card', 'YES'],
-            ['Airtel Fiber Gigabit', '₹1,179', 'MONTHLY', '2026-10-22', 'SBI Savings', 'YES'],
+            ['Service Name', 'Monthly / Yearly', 'Date format', 'Active / Inactive'],
+            ['Billing Account', 'Account Linked', 'Card / Bank', 'Auto-debit flag'],
+            ['Reminder Alert', 'Days before', '24h / 48h alert', 'Enabled'],
           ],
           isDark: isDark,
         );
@@ -444,9 +447,9 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
+        color: isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.2)),
+        border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -455,7 +458,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
           dataRowMinHeight: 36,
           dataRowMaxHeight: 40,
           headingRowColor: WidgetStateProperty.all(
-            AppColors.goldPrimary.withValues(alpha: isDark ? 0.15 : 0.1),
+            isDark ? AppColors.surface : Colors.white,
           ),
           columns: headers.map((h) {
             return DataColumn(
@@ -463,8 +466,8 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                 h,
                 style: const TextStyle(
                   fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.goldPrimary,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.bluePrimary,
                 ),
               ),
             );
@@ -479,9 +482,9 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                     style: TextStyle(
                       fontSize: 11,
                       fontFamily: isFormula ? 'monospace' : null,
-                      fontWeight: isFormula ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isFormula ? FontWeight.w600 : FontWeight.w400,
                       color: isFormula
-                          ? AppColors.goldPrimary
+                          ? AppColors.blueLight
                           : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
                     ),
                   ),
@@ -500,9 +503,9 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.card : AppColors.lightSurfaceVariant,
+          color: isDark ? AppColors.elevatedSurface : AppColors.lightSurfaceVariant,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.goldPrimary.withValues(alpha: 0.15)),
+          border: Border.all(color: isDark ? AppColors.border : AppColors.lightBorder),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -511,7 +514,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
               label,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
@@ -519,7 +522,7 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppColors.goldPrimary.withValues(alpha: 0.12),
+                  color: isDark ? AppColors.surface : AppColors.blueSoft,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -527,8 +530,8 @@ class _GoogleSheetsScreenState extends ConsumerState<GoogleSheetsScreen> {
                   style: const TextStyle(
                     fontSize: 11,
                     fontFamily: 'monospace',
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.goldPrimary,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.bluePrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

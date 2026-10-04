@@ -34,7 +34,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
 
   final List<Map<String, dynamic>> _navItems = const [
     {'title': 'Dashboard', 'icon': Icons.dashboard_rounded},
-    {'title': 'Google Sheets', 'icon': Icons.table_chart_rounded, 'badge': 'NEW'},
+    {'title': 'Google Sheets', 'icon': Icons.table_chart_rounded, 'badge': 'SHEETS'},
     {'title': 'Analytics', 'icon': Icons.insights_rounded},
     {'title': 'Income & Accounts', 'icon': Icons.account_balance_wallet_rounded},
     {'title': 'Budgets & Goals', 'icon': Icons.pie_chart_rounded},
@@ -61,23 +61,16 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
           backgroundColor: isDark ? AppColors.background : AppColors.lightBackground,
           // Desktop / Web Top Navbar
           appBar: PreferredSize(
-            preferredSize: Size.fromHeight(isDesktop ? 70 : 60),
+            preferredSize: Size.fromHeight(isDesktop ? 68 : 58),
             child: Container(
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surface : Colors.white,
                 border: Border(
                   bottom: BorderSide(
-                    color: AppColors.goldPrimary.withValues(alpha: 0.25),
+                    color: isDark ? AppColors.border : AppColors.lightBorder,
                     width: 1.0,
                   ),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.goldPrimary.withValues(alpha: isDark ? 0.05 : 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
               ),
               padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
               child: SafeArea(
@@ -92,20 +85,13 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              gradient: AppColors.goldGradient,
+                              color: AppColors.bluePrimary,
                               borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.goldPrimary.withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
                             ),
                             child: const Icon(
                               Icons.account_balance_wallet_rounded,
                               size: 20,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -119,7 +105,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                     'FinPilot',
                                     style: TextStyle(
                                       fontSize: 18,
-                                      fontWeight: FontWeight.w900,
+                                      fontWeight: FontWeight.w800,
                                       color: textColor,
                                       letterSpacing: -0.3,
                                     ),
@@ -128,28 +114,28 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: AppColors.goldPrimary.withValues(alpha: 0.2),
+                                      color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: const Text(
-                                      'GOLD',
+                                      'PRO',
                                       style: TextStyle(
                                         fontSize: 9,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.goldPrimary,
-                                        letterSpacing: 0.8,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.bluePrimary,
+                                        letterSpacing: 0.5,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
                               const Text(
-                                'FINANCIAL INTELLIGENCE & SHEETS',
+                                'FINANCIAL OS & SHEETS',
                                 style: TextStyle(
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.goldPrimary,
-                                  letterSpacing: 0.6,
+                                  color: AppColors.blueLight,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
                             ],
@@ -176,12 +162,12 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? AppColors.goldPrimary.withValues(alpha: 0.15)
+                                        ? (isDark ? AppColors.elevatedSurface : AppColors.blueSoft)
                                         : Colors.transparent,
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
                                       color: isSelected
-                                          ? AppColors.goldPrimary.withValues(alpha: 0.4)
+                                          ? AppColors.bluePrimary.withValues(alpha: 0.3)
                                           : Colors.transparent,
                                       width: 1,
                                     ),
@@ -192,7 +178,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                         item['icon'] as IconData,
                                         size: 17,
                                         color: isSelected
-                                            ? AppColors.goldPrimary
+                                            ? AppColors.bluePrimary
                                             : subTextColor,
                                       ),
                                       const SizedBox(width: 8),
@@ -200,9 +186,9 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                         item['title'] as String,
                                         style: TextStyle(
                                           fontSize: 13,
-                                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                           color: isSelected
-                                              ? (isDark ? Colors.white : AppColors.goldDark)
+                                              ? (isDark ? Colors.white : AppColors.bluePrimary)
                                               : subTextColor,
                                         ),
                                       ),
@@ -211,15 +197,15 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                                           decoration: BoxDecoration(
-                                            color: AppColors.goldPrimary,
+                                            color: AppColors.bluePrimary,
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                           child: Text(
                                             item['badge'] as String,
                                             style: const TextStyle(
                                               fontSize: 8,
-                                              fontWeight: FontWeight.w900,
-                                              color: Colors.black,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
                                             ),
                                           ),
                                         ),
@@ -249,10 +235,10 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.goldPrimary.withValues(alpha: 0.12),
+                          color: isDark ? AppColors.elevatedSurface : AppColors.blueSoft,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: AppColors.goldPrimary.withValues(alpha: 0.3),
+                            color: AppColors.bluePrimary.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -265,7 +251,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                               decoration: BoxDecoration(
                                 color: sheetsState.config.isConnected
                                     ? AppColors.income
-                                    : AppColors.goldPrimary,
+                                    : AppColors.bluePrimary,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -278,8 +264,8 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                   : 'Sheets',
                               style: const TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.goldPrimary,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.bluePrimary,
                               ),
                             ),
                           ],
@@ -291,17 +277,17 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                     // 2. Add Expense Quick Button
                     ElevatedButton.icon(
                       onPressed: () => context.push('/add-expense'),
-                      icon: const Icon(Icons.add_rounded, size: 16, color: Colors.black),
+                      icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
                       label: Text(
                         isDesktop ? 'Add Expense' : 'Add',
                         style: const TextStyle(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           fontSize: 12,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.goldPrimary,
+                        backgroundColor: AppColors.bluePrimary,
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         padding: EdgeInsets.symmetric(
@@ -314,11 +300,11 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
 
                     // 3. Theme Toggle Button
                     IconButton(
-                      tooltip: isDark ? 'Switch to Clear Light Gold' : 'Switch to Deep Obsidian Gold',
+                      tooltip: 'Toggle Theme',
                       icon: Icon(
                         isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                         size: 20,
-                        color: AppColors.goldPrimary,
+                        color: subTextColor,
                       ),
                       onPressed: () {
                         ref.read(themeProvider.notifier).toggleTheme();
@@ -383,7 +369,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                     color: isDark ? AppColors.surface : Colors.white,
                     border: Border(
                       top: BorderSide(
-                        color: AppColors.goldPrimary.withValues(alpha: 0.25),
+                        color: isDark ? AppColors.border : AppColors.lightBorder,
                         width: 1.0,
                       ),
                     ),
@@ -394,7 +380,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                       final item = _navItems[index];
                       final isSelected = _selectedIndex == index;
                       final color = isSelected
-                          ? AppColors.goldPrimary
+                          ? AppColors.bluePrimary
                           : (isDark ? AppColors.mutedText : AppColors.lightTextMuted);
 
                       return InkWell(
@@ -417,7 +403,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                                             : item['title'] as String)),
                                 style: TextStyle(
                                   fontSize: 10,
-                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                   color: color,
                                 ),
                               ),
